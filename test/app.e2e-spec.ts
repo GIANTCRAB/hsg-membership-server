@@ -2,29 +2,27 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {INestApplication, ValidationPipe} from '@nestjs/common';
 import * as request from 'supertest';
 import {AppModule} from '../src/app.module';
-import {Connection, createConnection, getConnection} from "typeorm";
-import {ConfigService} from "@nestjs/config";
+import {ConfigModule} from "@nestjs/config";
 import {TypeOrmConfigService} from "../src/services/type-orm-config.service";
+import {TypeOrmModule} from "@nestjs/typeorm";
 
 describe('AppController (e2e)', () => {
     let app: INestApplication;
-    let connection: Connection;
 
     beforeAll(async () => {
-        if (!connection) {
-            const configService = new ConfigService()
-            connection = await createConnection((new TypeOrmConfigService(configService)).getTypeOrmConfig())
-        }
-    })
-
-    beforeEach(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule(
             {
-                imports: [AppModule],
+                imports: [
+                    ConfigModule.forRoot({
+                        isGlobal: true,
+                    }),
+                    TypeOrmModule.forRootAsync({
+                        useClass: TypeOrmConfigService,
+                    }),
+                    AppModule,
+                ],
             }
         )
-            .overrideProvider(Connection)
-            .useValue(connection)
             .compile();
 
         app = moduleFixture.createNestApplication();
@@ -40,9 +38,16 @@ describe('AppController (e2e)', () => {
     });
 
     it('/user-registration (POST)', () => {
+        const userData = {
+            email: "test@example.org",
+            firstName: "test",
+            lastName: "surname",
+            password: "password123",
+        }
         return request(app.getHttpServer())
             .post('/user-registration')
-            .expect(200)
-            .expect('Hello World!');
+            .send(userData)
+            .set('Accept', 'application/json')
+            .expect(201);
     });
 });

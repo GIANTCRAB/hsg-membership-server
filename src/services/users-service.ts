@@ -21,7 +21,7 @@ export class UsersService {
             .pipe(
                 first(),
                 switchMap(hashedPassword => {
-                    const user = new UserEntity({
+                    const user: UserEntity = new UserEntity({
                         email: registerUserDto.email,
                         firstName: registerUserDto.firstName,
                         lastName: registerUserDto.lastName,
