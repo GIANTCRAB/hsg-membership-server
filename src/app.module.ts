@@ -4,7 +4,7 @@ import {AppService} from './app.service';
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {RegistrationController} from "./controllers/registration/registration.controller";
-import {UsersService} from "./services/users-service";
+import {UsersService} from "./services/users.service";
 import {TypeOrmConfigService} from "./services/type-orm-config.service";
 
 @Module({

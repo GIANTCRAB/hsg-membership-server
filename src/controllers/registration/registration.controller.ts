@@ -1,7 +1,7 @@
 import {Body, Controller, HttpCode, Post} from "@nestjs/common";
 import {RegisterUserDto} from "./register-user-dto";
 import {Observable} from "rxjs";
-import {UsersService} from "../../services/users-service";
+import {UsersService} from "../../services/users.service";
 
 @Controller('user-registration')
 export class RegistrationController {
