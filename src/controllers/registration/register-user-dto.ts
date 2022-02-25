@@ -5,10 +5,10 @@ export class RegisterUserDto {
     email: string;
 
     @IsNotEmpty()
-    firstName: string;
+    first_name: string;
 
     @IsNotEmpty()
-    lastName: string;
+    last_name: string;
 
     @IsNotEmpty()
     password: string;

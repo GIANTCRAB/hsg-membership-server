@@ -40,8 +40,8 @@ describe('AppController (e2e)', () => {
     it('/user-registration (POST)', () => {
         const userData = {
             email: "test@example.org",
-            firstName: "test",
-            lastName: "surname",
+            first_name: "test",
+            last_name: "surname",
             password: "password123",
         }
         return request(app.getHttpServer())

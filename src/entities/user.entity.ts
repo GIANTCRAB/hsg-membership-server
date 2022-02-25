@@ -1,5 +1,6 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 import {Exclude} from "class-transformer";
+import {LoginTokenEntity} from "./login-token.entity";
 
 @Entity({
     name: "users",
@@ -13,16 +14,25 @@ export class UserEntity {
 
     @Exclude()
     @Column()
-    hashedPassword: string;
+    hashed_password: string;
 
     @Column()
-    firstName: string;
+    first_name: string;
 
     @Column()
-    lastName: string;
+    last_name: string;
 
     @Column({default: false})
-    isAdmin: boolean;
+    is_admin: boolean;
+
+    @CreateDateColumn()
+    created_at: Date;
+
+    @UpdateDateColumn()
+    updated_at: Date;
+
+    @OneToMany(() => LoginTokenEntity, login_token => login_token.user)
+    login_tokens: LoginTokenEntity[];
 
     constructor(partial: Partial<UserEntity>) {
         Object.assign(this, partial);

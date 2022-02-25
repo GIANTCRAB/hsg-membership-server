@@ -23,9 +23,9 @@ export class UsersService {
                 switchMap(hashedPassword => {
                     const user: UserEntity = new UserEntity({
                         email: registerUserDto.email,
-                        firstName: registerUserDto.firstName,
-                        lastName: registerUserDto.lastName,
-                        hashedPassword: hashedPassword,
+                        first_name: registerUserDto.first_name,
+                        last_name: registerUserDto.last_name,
+                        hashed_password: hashedPassword,
                     });
                     return from(this.connection.manager.save(user));
                 })
