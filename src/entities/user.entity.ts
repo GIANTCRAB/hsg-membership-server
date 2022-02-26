@@ -1,4 +1,4 @@
-import {Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 import {Exclude} from "class-transformer";
 import {LoginTokenEntity} from "./login-token.entity";
 
@@ -23,6 +23,7 @@ export class UserEntity {
     last_name: string;
 
     @Column({default: false})
+    @Index()
     is_admin: boolean;
 
     @CreateDateColumn()

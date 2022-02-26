@@ -1,4 +1,4 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {UserEntity} from "./user.entity";
 import {IsDate} from "class-validator";
 
@@ -13,6 +13,7 @@ export class LoginTokenEntity {
     value: string;
 
     @Column({default: true})
+    @Index()
     is_valid: boolean;
 
     @CreateDateColumn()
@@ -20,6 +21,7 @@ export class LoginTokenEntity {
 
     @Column()
     @IsDate()
+    @Index()
     expires_at: Date;
 
     @ManyToOne(() => UserEntity, user => user.login_tokens)
