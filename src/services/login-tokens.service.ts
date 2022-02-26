@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {Connection} from "typeorm";
+import {Connection, LessThan} from "typeorm";
 import {UserEntity} from "../entities/user.entity";
 import {LoginTokenEntity} from "../entities/login-token.entity";
 import {first, from, Observable, of, switchMap} from "rxjs";
@@ -35,7 +35,8 @@ export class LoginTokensService {
         return from(this.connection.manager.find(LoginTokenEntity, {
             where: {
                 value: token,
-                is_valid: true
+                is_valid: true,
+                expires_at: LessThan((new Date()).toISOString())
             }
         })).pipe(first(), switchMap(result => {
             return of(result.length > 0);
