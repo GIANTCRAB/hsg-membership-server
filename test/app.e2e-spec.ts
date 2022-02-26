@@ -2,9 +2,6 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {INestApplication, ValidationPipe} from '@nestjs/common';
 import * as request from 'supertest';
 import {AppModule} from '../src/app.module';
-import {ConfigModule} from "@nestjs/config";
-import {TypeOrmConfigService} from "../src/services/type-orm-config.service";
-import {TypeOrmModule} from "@nestjs/typeorm";
 
 describe('AppController (e2e)', () => {
     let app: INestApplication;
@@ -13,12 +10,6 @@ describe('AppController (e2e)', () => {
         const moduleFixture: TestingModule = await Test.createTestingModule(
             {
                 imports: [
-                    ConfigModule.forRoot({
-                        isGlobal: true,
-                    }),
-                    TypeOrmModule.forRootAsync({
-                        useClass: TypeOrmConfigService,
-                    }),
                     AppModule,
                 ],
             }
@@ -46,6 +37,18 @@ describe('AppController (e2e)', () => {
         }
         return request(app.getHttpServer())
             .post('/user-registration')
+            .send(userData)
+            .set('Accept', 'application/json')
+            .expect(201);
+    });
+
+    it('/user-login (POST)', () => {
+        const userData = {
+            email: "test@example.org",
+            password: "password123",
+        }
+        return request(app.getHttpServer())
+            .post('/user-login')
             .send(userData)
             .set('Accept', 'application/json')
             .expect(201);

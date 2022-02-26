@@ -6,6 +6,8 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {RegistrationController} from "./controllers/registration/registration.controller";
 import {UsersService} from "./services/users.service";
 import {TypeOrmConfigService} from "./services/type-orm-config.service";
+import {LoginController} from "./controllers/login/login.controller";
+import {LoginTokensService} from "./services/login-tokens.service";
 
 @Module({
     imports: [
@@ -18,11 +20,13 @@ import {TypeOrmConfigService} from "./services/type-orm-config.service";
     ],
     controllers: [
         AppController,
-        RegistrationController
+        RegistrationController,
+        LoginController
     ],
     providers: [
         AppService,
         UsersService,
+        LoginTokensService,
     ],
 })
 export class AppModule {

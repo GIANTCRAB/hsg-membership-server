@@ -4,7 +4,7 @@ import {UserEntity} from "../entities/user.entity";
 import {LoginTokenEntity} from "../entities/login-token.entity";
 import {first, from, Observable, of, switchMap} from "rxjs";
 import * as argon2 from "argon2";
-import moment from "moment";
+import * as moment from "moment";
 import * as crypto from "crypto";
 
 @Injectable()
