@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import {AppModule} from '../src/app.module';
 import {UserTokenDto} from "../src/controllers/login/user-token-dto";
 
-describe('AppController (e2e)', () => {
+describe('Authentication Flow (e2e)', () => {
     let app: INestApplication;
     let loginToken: string = '';
 
@@ -21,13 +21,6 @@ describe('AppController (e2e)', () => {
         app = moduleFixture.createNestApplication();
         app.useGlobalPipes(new ValidationPipe({transform: true}));
         await app.init();
-    });
-
-    it('/ (GET)', () => {
-        return request(app.getHttpServer())
-            .get('/')
-            .expect(200)
-            .expect('Hello World!');
     });
 
     it('/user-registration (POST) with missing fields', () => {
