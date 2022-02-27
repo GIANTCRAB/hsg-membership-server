@@ -1,8 +1,8 @@
 import {Injectable} from "@nestjs/common";
-import {Connection, LessThan} from "typeorm";
+import {Connection, MoreThan} from "typeorm";
 import {UserEntity} from "../entities/user.entity";
 import {LoginTokenEntity} from "../entities/login-token.entity";
-import {first, from, Observable, of, switchMap} from "rxjs";
+import {first, from, map, Observable, switchMap} from "rxjs";
 import * as argon2 from "argon2";
 import * as moment from "moment";
 import * as crypto from "crypto";
@@ -36,10 +36,39 @@ export class LoginTokensService {
             where: {
                 value: token,
                 is_valid: true,
-                expires_at: LessThan((new Date()).toISOString())
+                expires_at: MoreThan((new Date()).toISOString())
             }
-        })).pipe(first(), switchMap(result => {
-            return of(result.length > 0);
+        })).pipe(first(), map(result => {
+            return result.length !== 0;
         }));
+    }
+
+    public getLoginTokenFromString(token: string): Observable<LoginTokenEntity> {
+        return from(this.connection.manager.find(LoginTokenEntity, {
+            where: {
+                value: token,
+                is_valid: true,
+                expires_at: MoreThan((new Date()).toISOString())
+            }
+        })).pipe(first(), map(result => {
+            return result[0];
+        }));
+    }
+
+    public getUserFromToken(token: string): Observable<UserEntity> {
+        return from(this.connection.manager.find(LoginTokenEntity, {
+            where: {
+                value: token,
+                is_valid: true,
+                expires_at: MoreThan((new Date()).toISOString())
+            }
+        })).pipe(first(), map(result => {
+            return result[0].user;
+        }));
+    }
+
+    public invalidateLoginToken(loginToken: LoginTokenEntity) {
+        loginToken.is_valid = false;
+        return from(this.connection.manager.save(loginToken));
     }
 }
