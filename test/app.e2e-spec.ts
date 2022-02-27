@@ -30,6 +30,47 @@ describe('AppController (e2e)', () => {
             .expect('Hello World!');
     });
 
+    it('/user-registration (POST) with missing fields', () => {
+        const userData = {
+            email: "test@example.org",
+            first_name: "test",
+            last_name: "surname",
+        }
+        return request(app.getHttpServer())
+            .post('/user-registration')
+            .send(userData)
+            .set('Accept', 'application/json')
+            .expect(400);
+    });
+
+    it('/user-registration (POST) with empty fields', () => {
+        const userData = {
+            email: "test@example.org",
+            first_name: "test",
+            last_name: "surname",
+            password: "",
+        }
+        return request(app.getHttpServer())
+            .post('/user-registration')
+            .send(userData)
+            .set('Accept', 'application/json')
+            .expect(400);
+    });
+
+    it('/user-registration (POST) with invalid email', () => {
+        const userData = {
+            email: "test",
+            first_name: "test",
+            last_name: "surname",
+            password: "password123",
+        }
+        return request(app.getHttpServer())
+            .post('/user-registration')
+            .send(userData)
+            .set('Accept', 'application/json')
+            .expect(400);
+    });
+
     it('/user-registration (POST)', () => {
         const userData = {
             email: "test@example.org",
@@ -42,6 +83,42 @@ describe('AppController (e2e)', () => {
             .send(userData)
             .set('Accept', 'application/json')
             .expect(201);
+    });
+
+    it('/user-auth/login (POST) with invalid email', async () => {
+        const userData = {
+            email: "test",
+            password: "password123",
+        }
+        const response = await request(app.getHttpServer())
+            .post('/user-auth/login')
+            .send(userData)
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(400);
+    });
+
+    it('/user-auth/login (POST) with incorrect password', async () => {
+        const userData = {
+            email: "test@example.org",
+            password: "password12",
+        }
+        const response = await request(app.getHttpServer())
+            .post('/user-auth/login')
+            .send(userData)
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(422);
+    });
+
+    it('/user-auth/login (POST) with incorrect email', async () => {
+        const userData = {
+            email: "test2@example.org",
+            password: "password123",
+        }
+        const response = await request(app.getHttpServer())
+            .post('/user-auth/login')
+            .send(userData)
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(422);
     });
 
     it('/user-auth/login (POST)', async () => {
