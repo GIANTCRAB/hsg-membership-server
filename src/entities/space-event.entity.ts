@@ -35,7 +35,7 @@ export class SpaceEventEntity {
     @Index()
     event_end_date: Date;
 
-    @ManyToOne(() => UserEntity, user => user.login_tokens)
+    @ManyToOne(() => UserEntity, organizer => organizer.organized_space_events, {nullable: true})
     organizer: UserEntity;
 
     constructor(partial: Partial<SpaceEventEntity>) {

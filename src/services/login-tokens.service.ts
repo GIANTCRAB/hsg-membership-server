@@ -32,15 +32,15 @@ export class LoginTokensService {
     }
 
     public verifyTokenIsValid(token: string): Observable<boolean> {
-        return from(this.connection.manager.find(LoginTokenEntity, {
+        return from(this.connection.manager.count(LoginTokenEntity, {
             where: {
                 value: token,
                 is_valid: true,
                 expires_at: MoreThan((new Date()).toISOString())
             }
-        })).pipe(first(), map(result => {
-            return result.length !== 0;
-        }));
+        })).pipe(
+            map(result => result !== 0)
+        );
     }
 
     public getLoginTokenFromString(token: string): Observable<LoginTokenEntity> {
@@ -49,12 +49,16 @@ export class LoginTokensService {
                 value: token,
                 is_valid: true,
                 expires_at: MoreThan((new Date()).toISOString())
-            }
+            },
+            relations: ['user']
         }));
     }
 
     public getUserFromToken(token: string): Observable<UserEntity> {
-        return this.getLoginTokenFromString(token).pipe(map(result => result.user));
+        return this.getLoginTokenFromString(token)
+            .pipe(
+                map(result => result.user)
+            );
     }
 
     public invalidateLoginToken(loginToken: LoginTokenEntity) {

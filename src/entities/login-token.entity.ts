@@ -24,7 +24,7 @@ export class LoginTokenEntity {
     @Index()
     expires_at: Date;
 
-    @ManyToOne(() => UserEntity, user => user.login_tokens)
+    @ManyToOne(() => UserEntity, user => user.login_tokens, {nullable: false})
     user: UserEntity;
 
     constructor(partial: Partial<LoginTokenEntity>) {

@@ -1,6 +1,9 @@
 import {Injectable} from "@nestjs/common";
 import {TypeOrmModuleOptions, TypeOrmOptionsFactory} from "@nestjs/typeorm";
 import {ConfigService} from "@nestjs/config";
+import {UserEntity} from "../entities/user.entity";
+import {LoginTokenEntity} from "../entities/login-token.entity";
+import {SpaceEventEntity} from "../entities/space-event.entity";
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -15,7 +18,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
             username: this.configService.get<string>('DATABASE_USERNAME'),
             password: this.configService.get<string>('DATABASE_PASSWORD'),
             database: this.configService.get<string>('DATABASE_NAME'),
-            entities: [__dirname + '/../**/entities/*.entity.ts'],
+            entities: [UserEntity, LoginTokenEntity, SpaceEventEntity],
             synchronize: true,
             dropSchema: true,
         };
