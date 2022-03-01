@@ -44,27 +44,17 @@ export class LoginTokensService {
     }
 
     public getLoginTokenFromString(token: string): Observable<LoginTokenEntity> {
-        return from(this.connection.manager.find(LoginTokenEntity, {
-            where: {
-                value: token,
-                is_valid: true,
-                expires_at: MoreThan((new Date()).toISOString())
-            }
-        })).pipe(first(), map(result => {
-            return result[0];
-        }));
-    }
-
-    public getUserFromToken(token: string): Observable<UserEntity> {
         return from(this.connection.manager.findOne(LoginTokenEntity, {
             where: {
                 value: token,
                 is_valid: true,
                 expires_at: MoreThan((new Date()).toISOString())
             }
-        })).pipe(map(result => {
-            return result.user;
         }));
+    }
+
+    public getUserFromToken(token: string): Observable<UserEntity> {
+        return this.getLoginTokenFromString(token).pipe(map(result => result.user));
     }
 
     public invalidateLoginToken(loginToken: LoginTokenEntity) {
