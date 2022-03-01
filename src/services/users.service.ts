@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {RegisterUserDto} from "../controllers/registration/register-user-dto";
 import {UserEntity} from "../entities/user.entity";
 import {Connection} from "typeorm";
-import {first, from, Observable, of, switchMap} from "rxjs";
+import {first, from, map, Observable, of, switchMap} from "rxjs";
 import argon2 from "argon2";
 import {LoginUserDto} from "../controllers/login/login-user-dto";
 
@@ -61,18 +61,19 @@ export class UsersService {
     }
 
     public loginUser(loginUserDto: LoginUserDto): Observable<UserEntity | null> {
-        return from(this.connection.manager.find(UserEntity, {
+        return from(this.connection.manager.findOne(UserEntity, {
             where: {
-                email: loginUserDto.email
+                email: loginUserDto.email,
+                is_banned: false,
             }
         })).pipe(
             first(),
-            switchMap(users => {
-                if (users.length > 0) {
-                    return from(argon2.verify(users[0].hashed_password, loginUserDto.password))
+            switchMap(user => {
+                if (user !== undefined) {
+                    return from(argon2.verify(user.hashed_password, loginUserDto.password))
                         .pipe(
                             first(),
-                            switchMap(isValid => isValid ? of(users[0]) : of(null))
+                            map(isValid => isValid ? user : null)
                         );
                 }
                 return of(null);
