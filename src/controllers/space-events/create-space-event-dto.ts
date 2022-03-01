@@ -1,24 +1,25 @@
-import {IsDate, IsNotEmpty, MinDate} from "class-validator";
-import {UserEntity} from "../../entities/user.entity";
+import {IsDefined, IsISO8601, IsNotEmpty} from "class-validator";
 import {IsLongerThan} from "../../validators/is-longer-than";
+import {IsOneHourAfter} from "../../validators/is-one-hour-after";
 
 export class CreateSpaceEventDto {
+    @IsDefined()
     @IsNotEmpty()
     title: string;
 
+    @IsDefined()
     @IsNotEmpty()
     description: string;
 
-    @IsDate()
+    @IsISO8601()
+    @IsDefined()
     @IsNotEmpty()
-    @MinDate(new Date())
-    event_start_date: Date;
+    @IsOneHourAfter({message: 'Start date must be at least one hour after current time.'})
+    event_start_date: string;
 
-    @IsDate()
+    @IsISO8601()
+    @IsDefined()
     @IsNotEmpty()
     @IsLongerThan('event_start_date', {message: 'End date must be after start date.'})
-    event_end_date: Date;
-
-    @IsNotEmpty()
-    organizer: UserEntity;
+    event_end_date: string;
 }

@@ -1,11 +1,10 @@
 import {Test, TestingModule} from "@nestjs/testing";
 import {AppModule} from "../src/app.module";
 import {INestApplication, ValidationPipe} from "@nestjs/common";
-import * as request from "supertest";
+import request from "supertest";
 import {RegisterUserDto} from "../src/controllers/registration/register-user-dto";
 import {LoginUserDto} from "../src/controllers/login/login-user-dto";
 import {getConnection} from "typeorm";
-import {UserEntity} from "../src/entities/user.entity";
 import {UsersService} from "../src/services/users.service";
 import {first, firstValueFrom, switchMap} from "rxjs";
 

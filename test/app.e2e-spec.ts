@@ -1,7 +1,10 @@
 import {INestApplication} from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import {UserTokenDto} from "../src/controllers/login/user-token-dto";
 import {TestE2eHelpers} from "./test-e2e-helpers";
+import {CreateSpaceEventDto} from "../src/controllers/space-events/create-space-event-dto";
+import moment from "moment";
+import {UserEntity} from "../src/entities/user.entity";
 
 const e2eHelper = new TestE2eHelpers();
 let app: INestApplication;
@@ -177,10 +180,11 @@ describe('Space Event Flow (e2e)', () => {
         last_name: "surname",
         password: "password123",
     }
+    let validUser: UserEntity;
 
     beforeAll(async () => {
         await e2eHelper.resetDatabase();
-        await e2eHelper.createValidUser(validUserData);
+        validUser = await e2eHelper.createValidUser(validUserData);
         const userData = {
             email: validUserData.email,
             password: validUserData.password,
@@ -196,5 +200,23 @@ describe('Space Event Flow (e2e)', () => {
             .get('/space-events/latest')
             .set('Accept', 'application/json');
         expect(response.status).toEqual(200);
+    });
+
+    it('/space-events (POST)', async () => {
+        const eventData: CreateSpaceEventDto = {
+            title: 'test event',
+            description: 'test stuff',
+            event_start_date: moment().utc().add(1, 'months').toISOString(),
+            event_end_date: moment().utc().add(3, 'months').toISOString(),
+        };
+        console.log(moment().utc().add(1, 'months').toISOString());
+        console.log(moment().utc().add(1, 'months').toDate().toISOString());
+        const response = await request(app.getHttpServer())
+            .post('/space-events')
+            .send(eventData)
+            .set('Accept', 'application/json')
+            .set('Authorization', loginToken);
+        console.log(response.body);
+        expect(response.status).toEqual(201);
     });
 });

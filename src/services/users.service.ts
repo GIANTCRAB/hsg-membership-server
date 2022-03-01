@@ -3,7 +3,7 @@ import {RegisterUserDto} from "../controllers/registration/register-user-dto";
 import {UserEntity} from "../entities/user.entity";
 import {Connection} from "typeorm";
 import {first, from, Observable, of, switchMap} from "rxjs";
-import * as argon2 from "argon2";
+import argon2 from "argon2";
 import {LoginUserDto} from "../controllers/login/login-user-dto";
 
 @Injectable()

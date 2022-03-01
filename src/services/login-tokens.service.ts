@@ -3,9 +3,9 @@ import {Connection, MoreThan} from "typeorm";
 import {UserEntity} from "../entities/user.entity";
 import {LoginTokenEntity} from "../entities/login-token.entity";
 import {first, from, map, Observable, switchMap} from "rxjs";
-import * as argon2 from "argon2";
-import * as moment from "moment";
-import * as crypto from "crypto";
+import argon2 from "argon2";
+import moment from "moment";
+import crypto from "crypto";
 
 @Injectable()
 export class LoginTokensService {
@@ -56,14 +56,14 @@ export class LoginTokensService {
     }
 
     public getUserFromToken(token: string): Observable<UserEntity> {
-        return from(this.connection.manager.find(LoginTokenEntity, {
+        return from(this.connection.manager.findOne(LoginTokenEntity, {
             where: {
                 value: token,
                 is_valid: true,
                 expires_at: MoreThan((new Date()).toISOString())
             }
-        })).pipe(first(), map(result => {
-            return result[0].user;
+        })).pipe(map(result => {
+            return result.user;
         }));
     }
 
