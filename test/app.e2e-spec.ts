@@ -206,8 +206,83 @@ describe('Space Event Flow (e2e)', () => {
         const eventData: CreateSpaceEventDto = {
             title: 'test event',
             description: 'test stuff',
-            event_start_date: moment().utc().add(1, 'months').toISOString(),
-            event_end_date: moment().utc().add(3, 'months').toISOString(),
+            event_start_date: moment().utc().add(30, 'days').toISOString(),
+            event_end_date: moment().utc().add(90, 'days').toISOString(),
+        };
+        const response = await request(app.getHttpServer())
+            .post('/space-events')
+            .send(eventData)
+            .set('Accept', 'application/json')
+            .set('Authorization', loginToken);
+        expect(response.status).toEqual(201);
+    });
+
+    it('/space-events (POST) with conflict event start and end date', async () => {
+        const eventData: CreateSpaceEventDto = {
+            title: 'test event',
+            description: 'test stuff',
+            event_start_date: moment().utc().add(40, 'days').toISOString(),
+            event_end_date: moment().utc().add(60, 'days').toISOString(),
+        };
+        const response = await request(app.getHttpServer())
+            .post('/space-events')
+            .send(eventData)
+            .set('Accept', 'application/json')
+            .set('Authorization', loginToken);
+        expect(response.status).toEqual(422);
+    });
+
+    it('/space-events (POST) with conflict through event start date', async () => {
+        const eventData: CreateSpaceEventDto = {
+            title: 'test event',
+            description: 'test stuff',
+            event_start_date: moment().utc().add(60, 'days').toISOString(),
+            event_end_date: moment().utc().add(150, 'days').toISOString(),
+        };
+        const response = await request(app.getHttpServer())
+            .post('/space-events')
+            .send(eventData)
+            .set('Accept', 'application/json')
+            .set('Authorization', loginToken);
+        expect(response.status).toEqual(422);
+    });
+
+    it('/space-events (POST) with conflict through event end date', async () => {
+        const eventData: CreateSpaceEventDto = {
+            title: 'test event',
+            description: 'test stuff',
+            event_start_date: moment().utc().add(10, 'days').toISOString(),
+            event_end_date: moment().utc().add(40, 'days').toISOString(),
+        };
+        const response = await request(app.getHttpServer())
+            .post('/space-events')
+            .send(eventData)
+            .set('Accept', 'application/json')
+            .set('Authorization', loginToken);
+        expect(response.status).toEqual(422);
+    });
+
+    it('/space-events (POST) with conflict and over-exceed through event end date', async () => {
+        const eventData: CreateSpaceEventDto = {
+            title: 'test event',
+            description: 'test stuff',
+            event_start_date: moment().utc().add(10, 'days').toISOString(),
+            event_end_date: moment().utc().add(150, 'days').toISOString(),
+        };
+        const response = await request(app.getHttpServer())
+            .post('/space-events')
+            .send(eventData)
+            .set('Accept', 'application/json')
+            .set('Authorization', loginToken);
+        expect(response.status).toEqual(422);
+    });
+
+    it('/space-events (POST) without conflict event start and end date', async () => {
+        const eventData: CreateSpaceEventDto = {
+            title: 'test event',
+            description: 'test stuff',
+            event_start_date: moment().utc().add(140, 'days').toISOString(),
+            event_end_date: moment().utc().add(150, 'days').toISOString(),
         };
         const response = await request(app.getHttpServer())
             .post('/space-events')

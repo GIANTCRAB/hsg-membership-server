@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {Between, Connection, MoreThan} from "typeorm";
+import {Between, Connection, LessThan, MoreThan} from "typeorm";
 import {from, map, Observable} from "rxjs";
 import {SpaceEventEntity} from "../entities/space-event.entity";
 import {CreateSpaceEventDto} from "../controllers/space-events/create-space-event-dto";
@@ -46,6 +46,15 @@ export class SpaceEventsService {
                 {
                     event_end_date: Between(event_start_date, event_end_date),
                 },
+                {
+                    event_start_date: MoreThan(event_start_date),
+                    event_end_date: LessThan(event_start_date),
+                },
+
+                {
+                    event_start_date: LessThan(event_end_date),
+                    event_end_date: MoreThan(event_end_date),
+                }
             ],
         })).pipe(map(results => results !== 0));
     }
