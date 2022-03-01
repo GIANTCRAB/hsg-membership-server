@@ -1,6 +1,7 @@
 import {Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 import {Exclude} from "class-transformer";
 import {LoginTokenEntity} from "./login-token.entity";
+import {SpaceEventEntity} from "./space-event.entity";
 
 @Entity({
     name: "users",
@@ -34,6 +35,9 @@ export class UserEntity {
 
     @OneToMany(() => LoginTokenEntity, login_token => login_token.user)
     login_tokens: LoginTokenEntity[];
+
+    @OneToMany(() => SpaceEventEntity, space_event => space_event.organizer)
+    organized_space_events: SpaceEventEntity[];
 
     constructor(partial: Partial<UserEntity>) {
         Object.assign(this, partial);

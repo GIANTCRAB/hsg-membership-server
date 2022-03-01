@@ -4,9 +4,11 @@ import {INestApplication, ValidationPipe} from "@nestjs/common";
 import * as request from "supertest";
 import {RegisterUserDto} from "../src/controllers/registration/register-user-dto";
 import {LoginUserDto} from "../src/controllers/login/login-user-dto";
+import {getConnection} from "typeorm";
 
 export class TestE2eHelpers {
-    app: INestApplication;
+    app: INestApplication = null;
+    testHelper: TestE2eHelpers = null;
 
     public async startServer(): Promise<INestApplication> {
         const moduleFixture: TestingModule = await Test.createTestingModule(
@@ -24,8 +26,12 @@ export class TestE2eHelpers {
         return this.app;
     }
 
-    public async endServer(): Promise<void> {
+    public async stopServer() {
         return this.app.close();
+    }
+
+    public async resetDatabase(): Promise<void> {
+        return getConnection().synchronize(true);
     }
 
     public async createValidUser(userData: RegisterUserDto) {

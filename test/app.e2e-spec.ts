@@ -3,9 +3,19 @@ import * as request from 'supertest';
 import {UserTokenDto} from "../src/controllers/login/user-token-dto";
 import {TestE2eHelpers} from "./test-e2e-helpers";
 
+const e2eHelper = new TestE2eHelpers();
+let app: INestApplication;
+
+beforeAll(async () => {
+    app = await e2eHelper.startServer();
+    return app;
+});
+
+afterAll(async () => {
+    return await e2eHelper.stopServer();
+});
+
 describe('Authentication Flow (e2e)', () => {
-    const e2eHelper = new TestE2eHelpers();
-    let app: INestApplication;
     let loginToken: string = '';
     const validUserData = {
         email: "test@example.org",
@@ -15,11 +25,8 @@ describe('Authentication Flow (e2e)', () => {
     }
 
     beforeAll(async () => {
-        app = await e2eHelper.startServer();
-    });
-
-    afterAll(async () => {
-        await e2eHelper.endServer();
+        await e2eHelper.resetDatabase();
+        return app;
     });
 
     it('/user-registration (POST) with missing fields', () => {
@@ -128,5 +135,35 @@ describe('Authentication Flow (e2e)', () => {
             .set('Accept', 'application/json')
             .set('Authorization', loginToken);
         expect(response.status).toEqual(403);
+    });
+});
+
+describe('Space Event Flow (e2e)', () => {
+    let loginToken: string = '';
+    const validUserData = {
+        email: "test@example.org",
+        first_name: "test",
+        last_name: "surname",
+        password: "password123",
+    }
+
+    beforeAll(async () => {
+        await e2eHelper.resetDatabase();
+        await e2eHelper.createValidUser(validUserData);
+        const userData = {
+            email: validUserData.email,
+            password: validUserData.password,
+        }
+        const response = await e2eHelper.createValidLoginToken(userData);
+        const userTokenResponse: UserTokenDto = response.body;
+        loginToken = userTokenResponse.login_token.value;
+        return app;
+    });
+
+    it('/space-events/latest (GET)', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/space-events/latest')
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(200);
     });
 });
