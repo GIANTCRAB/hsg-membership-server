@@ -1,26 +1,25 @@
-import {Test, TestingModule} from '@nestjs/testing';
-import {INestApplication, ValidationPipe} from '@nestjs/common';
+import {INestApplication} from '@nestjs/common';
 import * as request from 'supertest';
-import {AppModule} from '../src/app.module';
 import {UserTokenDto} from "../src/controllers/login/user-token-dto";
+import {TestE2eHelpers} from "./test-e2e-helpers";
 
 describe('Authentication Flow (e2e)', () => {
+    const e2eHelper = new TestE2eHelpers();
     let app: INestApplication;
     let loginToken: string = '';
+    const validUserData = {
+        email: "test@example.org",
+        first_name: "test",
+        last_name: "surname",
+        password: "password123",
+    }
 
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule(
-            {
-                imports: [
-                    AppModule,
-                ],
-            }
-        )
-            .compile();
+        app = await e2eHelper.startServer();
+    });
 
-        app = moduleFixture.createNestApplication();
-        app.useGlobalPipes(new ValidationPipe({transform: true}));
-        await app.init();
+    afterAll(async () => {
+        await e2eHelper.endServer();
     });
 
     it('/user-registration (POST) with missing fields', () => {
@@ -64,24 +63,14 @@ describe('Authentication Flow (e2e)', () => {
             .expect(400);
     });
 
-    it('/user-registration (POST)', () => {
-        const userData = {
-            email: "test@example.org",
-            first_name: "test",
-            last_name: "surname",
-            password: "password123",
-        }
-        return request(app.getHttpServer())
-            .post('/user-registration')
-            .send(userData)
-            .set('Accept', 'application/json')
-            .expect(201);
+    it('/user-registration (POST)', async () => {
+        return await e2eHelper.createValidUser(validUserData);
     });
 
     it('/user-auth/login (POST) with invalid email', async () => {
         const userData = {
             email: "test",
-            password: "password123",
+            password: validUserData.password,
         }
         const response = await request(app.getHttpServer())
             .post('/user-auth/login')
@@ -92,7 +81,7 @@ describe('Authentication Flow (e2e)', () => {
 
     it('/user-auth/login (POST) with incorrect password', async () => {
         const userData = {
-            email: "test@example.org",
+            email: validUserData.email,
             password: "password12",
         }
         const response = await request(app.getHttpServer())
@@ -105,7 +94,7 @@ describe('Authentication Flow (e2e)', () => {
     it('/user-auth/login (POST) with incorrect email', async () => {
         const userData = {
             email: "test2@example.org",
-            password: "password123",
+            password: validUserData.password,
         }
         const response = await request(app.getHttpServer())
             .post('/user-auth/login')
@@ -116,14 +105,10 @@ describe('Authentication Flow (e2e)', () => {
 
     it('/user-auth/login (POST)', async () => {
         const userData = {
-            email: "test@example.org",
-            password: "password123",
+            email: validUserData.email,
+            password: validUserData.password,
         }
-        const response = await request(app.getHttpServer())
-            .post('/user-auth/login')
-            .send(userData)
-            .set('Accept', 'application/json');
-        expect(response.status).toEqual(201);
+        const response = await e2eHelper.createValidLoginToken(userData);
         const userTokenResponse: UserTokenDto = response.body;
         loginToken = userTokenResponse.login_token.value;
         expect(userTokenResponse.login_token.is_valid).toEqual(true);
