@@ -84,6 +84,14 @@ describe('Authentication Flow (e2e)', () => {
         expect(response.status).toEqual(201);
     });
 
+    it('/user-registration (POST) with existing email', async () => {
+        const response = await request(app.getHttpServer())
+            .post('/user-registration')
+            .send(validUserData)
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(422);
+    });
+
     it('/user-auth/login (POST) with invalid email', async () => {
         const userData = {
             email: "test",

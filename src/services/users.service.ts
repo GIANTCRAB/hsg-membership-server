@@ -48,6 +48,14 @@ export class UsersService {
         }));
     }
 
+    public getUserByEmail(email: string): Observable<UserEntity | undefined> {
+        return from(this.connection.manager.findOne(UserEntity, {
+            where: {
+                email: email,
+            }
+        }));
+    }
+
     public setUserToBanned(user: UserEntity) {
         return from(this.connection.manager.update(UserEntity, {id: user.id}, {is_banned: true}));
     }
