@@ -40,6 +40,18 @@ export class UsersService {
         }));
     }
 
+    public getUserById(userId: string): Observable<UserEntity | undefined> {
+        return from(this.connection.manager.findOne(UserEntity, {
+            where: {
+                id: userId,
+            }
+        }));
+    }
+
+    public setUserToBanned(user: UserEntity) {
+        return from(this.connection.manager.update(UserEntity, {id: user.id}, {is_banned: true}));
+    }
+
     public loginUser(loginUserDto: LoginUserDto): Observable<UserEntity | null> {
         return from(this.connection.manager.find(UserEntity, {
             where: {

@@ -68,7 +68,10 @@ export class LoginTokensService {
     }
 
     public invalidateLoginToken(loginToken: LoginTokenEntity) {
-        loginToken.is_valid = false;
-        return from(this.connection.manager.save(loginToken));
+        return from(this.connection.manager.update(LoginTokenEntity, {id: loginToken.id}, {is_valid: false}));
+    }
+
+    public invalidateAllLoginTokensOfUser(user: UserEntity) {
+        return from(this.connection.manager.update(LoginTokenEntity, {user: user}, {is_valid: false}));
     }
 }
