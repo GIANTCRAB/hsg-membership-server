@@ -209,14 +209,11 @@ describe('Space Event Flow (e2e)', () => {
             event_start_date: moment().utc().add(1, 'months').toISOString(),
             event_end_date: moment().utc().add(3, 'months').toISOString(),
         };
-        console.log(moment().utc().add(1, 'months').toISOString());
-        console.log(moment().utc().add(1, 'months').toDate().toISOString());
         const response = await request(app.getHttpServer())
             .post('/space-events')
             .send(eventData)
             .set('Accept', 'application/json')
             .set('Authorization', loginToken);
-        console.log(response.body);
         expect(response.status).toEqual(201);
     });
 });
