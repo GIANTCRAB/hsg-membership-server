@@ -22,6 +22,12 @@ describe('Authentication Flow (e2e)', () => {
         first_name: "test",
         last_name: "surname",
         password: "password123",
+    };
+    const bannedUserData = {
+        email: "test5@example.org",
+        first_name: "test",
+        last_name: "surname",
+        password: "password123",
     }
 
     beforeAll(async () => {
@@ -71,7 +77,11 @@ describe('Authentication Flow (e2e)', () => {
     });
 
     it('/user-registration (POST)', async () => {
-        return await e2eHelper.createValidUser(validUserData);
+        const response = await request(app.getHttpServer())
+            .post('/user-registration')
+            .send(validUserData)
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(201);
     });
 
     it('/user-auth/login (POST) with invalid email', async () => {
@@ -101,6 +111,19 @@ describe('Authentication Flow (e2e)', () => {
     it('/user-auth/login (POST) with incorrect email', async () => {
         const userData = {
             email: "test2@example.org",
+            password: validUserData.password,
+        }
+        const response = await request(app.getHttpServer())
+            .post('/user-auth/login')
+            .send(userData)
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(422);
+    });
+
+    it('/user-auth/login (POST) with banned account', async () => {
+        await e2eHelper.createBannedUser(bannedUserData);
+        const userData = {
+            email: bannedUserData.email,
             password: validUserData.password,
         }
         const response = await request(app.getHttpServer())

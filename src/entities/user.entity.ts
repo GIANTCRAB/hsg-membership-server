@@ -27,6 +27,10 @@ export class UserEntity {
     @Index()
     is_admin: boolean;
 
+    @Column({default: false})
+    @Index()
+    is_banned: boolean;
+
     @CreateDateColumn()
     created_at: Date;
 

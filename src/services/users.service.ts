@@ -13,24 +13,31 @@ export class UsersService {
 
     public registerUser(registerUserDto: RegisterUserDto): Observable<UserEntity> {
         // kibibyte as memory cost
-        return from(argon2.hash(registerUserDto.password, {
-            type: argon2.argon2id,
-            memoryCost: 15360,
-            parallelism: 1,
-            timeCost: 2
-        }))
+        return this.hashPassword(registerUserDto.password)
             .pipe(
                 first(),
                 switchMap(hashedPassword => {
-                    const user: UserEntity = new UserEntity({
+                    return this.createUser({
                         email: registerUserDto.email,
                         first_name: registerUserDto.first_name,
                         last_name: registerUserDto.last_name,
                         hashed_password: hashedPassword,
                     });
-                    return from(this.connection.manager.save(user));
                 })
-            )
+            );
+    }
+
+    public createUser(userData: Partial<UserEntity>): Observable<UserEntity> {
+        return from(this.connection.manager.save(new UserEntity(userData)));
+    }
+
+    public hashPassword(givenPassword: string) {
+        return from(argon2.hash(givenPassword, {
+            type: argon2.argon2id,
+            memoryCost: 15360,
+            parallelism: 1,
+            timeCost: 2
+        }));
     }
 
     public loginUser(loginUserDto: LoginUserDto): Observable<UserEntity | null> {
