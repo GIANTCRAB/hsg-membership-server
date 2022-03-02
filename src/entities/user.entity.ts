@@ -14,7 +14,7 @@ export class UserEntity {
     email: string;
 
     @Exclude()
-    @Column()
+    @Column({select: false})
     hashed_password: string;
 
     @Column()

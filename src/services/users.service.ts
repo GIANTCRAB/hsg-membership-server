@@ -65,7 +65,8 @@ export class UsersService {
             where: {
                 email: loginUserDto.email,
                 is_banned: false,
-            }
+            },
+            select: ['id', 'hashed_password'],
         })).pipe(
             first(),
             switchMap(user => {
@@ -73,7 +74,12 @@ export class UsersService {
                     return from(argon2.verify(user.hashed_password, loginUserDto.password))
                         .pipe(
                             first(),
-                            map(isValid => isValid ? user : null)
+                            switchMap(isValid => {
+                                if (isValid) {
+                                    return this.getUserById(user.id);
+                                }
+                                return of(null);
+                            })
                         );
                 }
                 return of(null);

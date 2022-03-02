@@ -15,20 +15,25 @@ export class LoginController {
     @Post('login')
     @HttpCode(201)
     postUserLogin(@Body() loginUserDto: LoginUserDto): Observable<object> {
-        return this.usersService.loginUser(loginUserDto).pipe(switchMap(loginUser => {
-            if (loginUser === null) {
-                throw new HttpException('Incorrect login details.', HttpStatus.UNPROCESSABLE_ENTITY);
-            } else {
-                return this.loginTokensService.createTokenForUser(loginUser)
-                    .pipe(map(loginToken => {
-                        const userTokenDto: UserTokenDto = {
-                            user: loginUser,
-                            login_token: loginToken
-                        };
-                        return userTokenDto;
-                    }));
-            }
-        }));
+        return this.usersService.loginUser(loginUserDto)
+            .pipe(
+                switchMap(loginUser => {
+                    if (loginUser === null) {
+                        throw new HttpException('Incorrect login details.', HttpStatus.UNPROCESSABLE_ENTITY);
+                    } else {
+                        return this.loginTokensService.createTokenForUser(loginUser)
+                            .pipe(
+                                map(loginToken => {
+                                    const userTokenDto: UserTokenDto = {
+                                        user: loginUser,
+                                        login_token: loginToken
+                                    };
+                                    return userTokenDto;
+                                })
+                            );
+                    }
+                })
+            );
     }
 
     @Delete('logout')

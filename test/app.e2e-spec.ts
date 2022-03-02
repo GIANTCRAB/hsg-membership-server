@@ -153,6 +153,7 @@ describe('Authentication Flow (e2e)', () => {
         const userTokenResponse: UserTokenDto = response.body;
         loginToken = userTokenResponse.login_token.value;
         expect(userTokenResponse.login_token.is_valid).toEqual(true);
+        expect(userTokenResponse.user.hashed_password).toBeUndefined();
     });
 
     it('/user-auth/logout (DELETE)', async () => {
@@ -181,6 +182,7 @@ describe('Space Event Flow (e2e)', () => {
         password: "password123",
     }
     let validUser: UserEntity;
+    const createdSpaceEvents = [];
 
     beforeAll(async () => {
         await e2eHelper.resetDatabase();
@@ -193,13 +195,6 @@ describe('Space Event Flow (e2e)', () => {
         const userTokenResponse: UserTokenDto = response.body;
         loginToken = userTokenResponse.login_token.value;
         return app;
-    });
-
-    it('/space-events/latest (GET)', async () => {
-        const response = await request(app.getHttpServer())
-            .get('/space-events/latest')
-            .set('Accept', 'application/json');
-        expect(response.status).toEqual(200);
     });
 
     it('/space-events (POST)', async () => {
@@ -215,6 +210,7 @@ describe('Space Event Flow (e2e)', () => {
             .set('Accept', 'application/json')
             .set('Authorization', loginToken);
         expect(response.status).toEqual(201);
+        createdSpaceEvents.push(response.body);
     });
 
     it('/space-events (POST) with conflict event start and end date', async () => {
@@ -290,5 +286,21 @@ describe('Space Event Flow (e2e)', () => {
             .set('Accept', 'application/json')
             .set('Authorization', loginToken);
         expect(response.status).toEqual(201);
+        createdSpaceEvents.push(response.body);
+    });
+
+    it('/space-events/latest (GET)', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/space-events/latest')
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(200);
+        expect(response.body).toHaveLength(createdSpaceEvents.length);
+        createdSpaceEvents.forEach(createdSpaceEvent => {
+            expect(response.body).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({id: createdSpaceEvent.id})
+                ])
+            );
+        });
     });
 });
