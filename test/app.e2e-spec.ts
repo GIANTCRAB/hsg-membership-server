@@ -303,4 +303,22 @@ describe('Space Event Flow (e2e)', () => {
             );
         });
     });
+
+    it('/space-events/:id (GET) with invalid ID', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/space-events/abcde-fac')
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(404);
+    });
+
+    it('/space-events/:id (GET)', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/space-events/' + createdSpaceEvents[0].id)
+            .set('Accept', 'application/json');
+        expect(response.status).toEqual(200);
+        expect(response.body).toEqual(
+            expect.objectContaining({id: createdSpaceEvents[0].id})
+        );
+        expect(response.body.organizer).toBeDefined();
+    });
 });

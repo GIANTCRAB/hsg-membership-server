@@ -1,9 +1,9 @@
 import {
     Body,
     Controller,
-    Get, Headers, HttpCode, HttpException, HttpStatus, Post, UseGuards
+    Get, Headers, HttpCode, HttpException, HttpStatus, Param, Post, UseGuards
 } from "@nestjs/common";
-import {Observable, switchMap} from "rxjs";
+import {map, Observable, switchMap} from "rxjs";
 import {SpaceEventsService} from "../../services/space-events.service";
 import {UserTokenGuard} from "../../guards/user-token-guard";
 import {CreateSpaceEventDto} from "./create-space-event-dto";
@@ -19,6 +19,16 @@ export class SpaceEventsController {
     // Events that have not yet past
     getRecentUpcoming(): Observable<object> {
         return this.spaceEventsService.getLatestValidEvents();
+    }
+
+    @Get(':id')
+    getSpecificSpaceEvent(@Param() params): Observable<object> {
+        return this.spaceEventsService.getSpecificSpaceEventById(params.id).pipe(map(spaceEvent => {
+            if(spaceEvent) {
+                return spaceEvent;
+            }
+            throw new HttpException('Space event with such an ID could not be found.', HttpStatus.NOT_FOUND);
+        }));
     }
 
     @HttpCode(201)

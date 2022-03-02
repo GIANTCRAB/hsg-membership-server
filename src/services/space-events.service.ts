@@ -25,6 +25,12 @@ export class SpaceEventsService {
         }));
     }
 
+    public getSpecificSpaceEventById(spaceEventId: string): Observable<SpaceEventEntity> {
+        return from(this.connection.manager.findOne(SpaceEventEntity, spaceEventId, {
+            relations: ['organizer'],
+        }));
+    }
+
     public createSpaceEvent(createSpaceEventDto: CreateSpaceEventDto, organizer: UserEntity): Observable<SpaceEventEntity> {
         return from(this.connection.manager.save(new SpaceEventEntity({
             event_start_date: moment(createSpaceEventDto.event_start_date).utc().toDate(),
