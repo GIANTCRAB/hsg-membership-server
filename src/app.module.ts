@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
-import {ConfigModule, ConfigService} from "@nestjs/config";
+import {ConfigModule} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {RegistrationController} from "./controllers/registration/registration.controller";
 import {UsersService} from "./services/users.service";
@@ -10,6 +10,8 @@ import {LoginController} from "./controllers/login/login.controller";
 import {LoginTokensService} from "./services/login-tokens.service";
 import {SpaceEventsService} from "./services/space-events.service";
 import {SpaceEventsController} from "./controllers/space-events/space-events.controller";
+import {MailerModule} from "@nestjs-modules/mailer";
+import {MailerConfigService} from "./services/mailer-config.service";
 
 @Module({
     imports: [
@@ -18,6 +20,9 @@ import {SpaceEventsController} from "./controllers/space-events/space-events.con
         }),
         TypeOrmModule.forRootAsync({
             useClass: TypeOrmConfigService,
+        }),
+        MailerModule.forRootAsync({
+            useClass: MailerConfigService,
         }),
     ],
     controllers: [
