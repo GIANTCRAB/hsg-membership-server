@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RegistrationController } from './controllers/registration/registration.controller';
@@ -29,14 +27,12 @@ import { UserEmailVerificationsController } from './controllers/user-email-verif
     }),
   ],
   controllers: [
-    AppController,
     RegistrationController,
     LoginController,
     SpaceEventsController,
     UserEmailVerificationsController,
   ],
   providers: [
-    AppService,
     UsersService,
     LoginTokensService,
     SpaceEventsService,
