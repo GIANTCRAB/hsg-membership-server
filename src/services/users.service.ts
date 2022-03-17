@@ -65,6 +65,7 @@ export class UsersService {
             where: {
                 email: loginUserDto.email,
                 is_banned: false,
+                is_verified: true,
             },
             select: ['id', 'hashed_password'],
         })).pipe(
