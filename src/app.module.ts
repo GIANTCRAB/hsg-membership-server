@@ -13,6 +13,7 @@ import { MailerConfigService } from './services/mailer-config.service';
 import { UserEmailVerificationsService } from './services/user-email-verifications.service';
 import { EmailService } from './services/email.service';
 import { UserEmailVerificationsController } from './controllers/user-email-verifications/user-email-verifications.controller';
+import { AdminService } from './services/admin.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { UserEmailVerificationsController } from './controllers/user-email-verif
     SpaceEventsService,
     EmailService,
     UserEmailVerificationsService,
+    AdminService,
   ],
 })
 export class AppModule {}
