@@ -73,7 +73,7 @@ export class UserEmailVerificationsService {
   ) {
     const emailContent = `Hey there ${userEmailVerification.user.first_name}, 
         \n\n
-        Thank you for signing up with Hackerspace SG. This is your verification code: ${userEmailVerification.code} .
+        Thank you for signing up with Hackerspace SG. This is your verification code: ${userEmailVerification.code}
         \n\n
         Best Regards,\n
         Hackerspace SG
