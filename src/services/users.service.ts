@@ -15,7 +15,6 @@ export class UsersService {
   ): Observable<UserEntity> {
     // kibibyte as memory cost
     return this.hashPassword(registerUserDto.password).pipe(
-      first(),
       switchMap((hashedPassword) => {
         return this.createUser({
           email: registerUserDto.email,
@@ -31,7 +30,7 @@ export class UsersService {
     return from(this.connection.manager.save(new UserEntity(userData)));
   }
 
-  public hashPassword(givenPassword: string) {
+  public hashPassword(givenPassword: string): Observable<string> {
     return from(
       argon2.hash(givenPassword, {
         type: argon2.argon2id,

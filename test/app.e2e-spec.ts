@@ -241,6 +241,36 @@ describe('User Profile Flow (e2e)', () => {
     expect(response.body.last_name).toEqual(userDetails.last_name);
     expect(response.body.hashed_password).toBeUndefined();
   });
+
+  it('/user-profiles/update-password (POST) with incorrect password', async () => {
+    const userDetails = {
+      old_password: randomStringGenerator(),
+      new_password: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/user-profiles/update-password')
+      .send(userDetails)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(422);
+  });
+
+  it('/user-profiles/update-password (POST)', async () => {
+    const userDetails = {
+      old_password: validUserData.password,
+      new_password: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/user-profiles/update-password')
+      .send(userDetails)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.hashed_password).toBeUndefined();
+  });
 });
 
 describe('Space Event Flow (e2e)', () => {
