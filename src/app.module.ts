@@ -18,6 +18,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { MulterConfigService } from './services/multer-config.service';
 import { PhotoUploadsService } from './services/photo-uploads.service';
 import { PhotosController } from './controllers/photos/photos.controller';
+import { UserProfilesController } from './controllers/user-profiles/user-profiles.controller';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { PhotosController } from './controllers/photos/photos.controller';
     SpaceEventsController,
     UserEmailVerificationsController,
     PhotosController,
+    UserProfilesController,
   ],
   providers: [
     UsersService,

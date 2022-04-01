@@ -190,6 +190,40 @@ describe('Authentication Flow (e2e)', () => {
   });
 });
 
+describe('User Profile Flow (e2e)', () => {
+  let loginToken: string = '';
+  const validUserData = {
+    email: 'test@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+  let validUser: UserEntity;
+
+  beforeAll(async () => {
+    await e2eHelper.resetDatabase();
+    validUser = await e2eHelper.createValidUser(validUserData);
+    const userData = {
+      email: validUserData.email,
+      password: validUserData.password,
+    };
+    const response = await e2eHelper.createValidLoginToken(userData);
+    const userTokenResponse: UserTokenDto = response.body;
+    loginToken = userTokenResponse.login_token.value;
+    return app;
+  });
+
+  it('/user-profiles/self (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/user-profiles/self')
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(validUser.id);
+  });
+});
+
 describe('Space Event Flow (e2e)', () => {
   let loginToken: string = '';
   const validUserData = {
