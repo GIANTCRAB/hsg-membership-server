@@ -14,6 +14,9 @@ import { UserEmailVerificationsService } from './services/user-email-verificatio
 import { EmailService } from './services/email.service';
 import { UserEmailVerificationsController } from './controllers/user-email-verifications/user-email-verifications.controller';
 import { AdminService } from './services/admin.service';
+import { MulterModule } from '@nestjs/platform-express';
+import { MulterConfigService } from './services/multer-config.service';
+import { PhotoUploadsService } from './services/photo-uploads.service';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { AdminService } from './services/admin.service';
     }),
     MailerModule.forRootAsync({
       useClass: MailerConfigService,
+    }),
+    MulterModule.registerAsync({
+      useClass: MulterConfigService,
     }),
   ],
   controllers: [
@@ -40,6 +46,7 @@ import { AdminService } from './services/admin.service';
     EmailService,
     UserEmailVerificationsService,
     AdminService,
+    PhotoUploadsService,
   ],
 })
 export class AppModule {}

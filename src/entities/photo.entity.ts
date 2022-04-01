@@ -15,11 +15,11 @@ export class PhotoEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ length: 127 })
+  filename: string;
+
   @Column()
   title: string;
-
-  @Column({ length: 15 })
-  extension: string;
 
   @Column({ length: 31 })
   mime_type: string;
