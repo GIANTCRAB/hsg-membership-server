@@ -230,6 +230,23 @@ describe('Space Event Flow (e2e)', () => {
     createdSpaceEvents.push(response.body);
   });
 
+  it('/space-events/with-photo (POST)', async () => {
+    const eventData = {
+      title: 'test event',
+      description: 'test stuff',
+      event_start_date: moment().utc().add(10, 'days').toISOString(),
+      event_end_date: moment().utc().add(11, 'days').toISOString(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/space-events/with-photo')
+      .attach('photo', './test/files/event-test.png')
+      .field(eventData)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+    expect(response.status).toEqual(201);
+    createdSpaceEvents.push(response.body);
+  });
+
   it('/space-events (POST) with conflict event start and end date', async () => {
     const eventData: CreateSpaceEventDto = {
       title: 'test event',
@@ -337,5 +354,23 @@ describe('Space Event Flow (e2e)', () => {
       expect.objectContaining({ id: createdSpaceEvents[0].id }),
     );
     expect(response.body.organizer).toBeDefined();
+    expect(response.body.photo).toBeNull();
+  });
+
+  it('/space-events/:id (GET) for ones with photo should have photo', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/space-events/' + createdSpaceEvents[1].id)
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(
+      expect.objectContaining({ id: createdSpaceEvents[1].id }),
+    );
+    expect(response.body.organizer).toBeDefined();
+    expect(response.body.photo).toBeDefined();
+    const photoFileId = response.body.photo.id;
+    const photoResponse = await request(app.getHttpServer()).get(
+      '/photos/' + photoFileId + '/view',
+    );
+    expect(photoResponse.status).toEqual(200);
   });
 });
