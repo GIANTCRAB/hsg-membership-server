@@ -91,21 +91,6 @@ export class SpaceEventsService {
         );
       }),
     );
-    return from(
-      this.connection.manager.save(
-        new SpaceEventEntity({
-          event_start_date: moment(createSpaceEventDto.event_start_date)
-            .utc()
-            .toDate(),
-          event_end_date: moment(createSpaceEventDto.event_end_date)
-            .utc()
-            .toDate(),
-          title: createSpaceEventDto.title,
-          description: createSpaceEventDto.description,
-          organizer: organizer,
-        }),
-      ),
-    );
   }
 
   public checkForEventConflict(
