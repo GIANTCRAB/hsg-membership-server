@@ -5,6 +5,7 @@ import { UserEntity } from '../entities/user.entity';
 import { LoginTokenEntity } from '../entities/login-token.entity';
 import { SpaceEventEntity } from '../entities/space-event.entity';
 import { UserEmailVerificationEntity } from '../entities/user-email-verification.entity';
+import { PhotoEntity } from '../entities/photo.entity';
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -23,6 +24,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
         UserEmailVerificationEntity,
         LoginTokenEntity,
         SpaceEventEntity,
+        PhotoEntity,
       ],
       synchronize: true,
       dropSchema: true,
