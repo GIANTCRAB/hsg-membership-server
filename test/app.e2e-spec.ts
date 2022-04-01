@@ -270,6 +270,14 @@ describe('User Profile Flow (e2e)', () => {
     expect(response.status).toEqual(200);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.hashed_password).toBeUndefined();
+
+    // Changing password would invalidate all login tokens
+    const responseAfterUpdate = await request(app.getHttpServer())
+      .post('/user-profiles/update-password')
+      .send(userDetails)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+    expect(responseAfterUpdate.status).toEqual(403);
   });
 });
 

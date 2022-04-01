@@ -6,12 +6,14 @@ import { UpdateUserProfileDto } from '../controllers/user-profiles/update-user-p
 import { UpdateUserPasswordDto } from '../controllers/user-profiles/update-user-password-dto';
 import argon2 from 'argon2';
 import { UsersService } from './users.service';
+import { LoginTokensService } from './login-tokens.service';
 
 @Injectable()
 export class UserProfilesService {
   constructor(
     private readonly connection: Connection,
     private readonly usersService: UsersService,
+    private readonly loginTokensService: LoginTokensService,
   ) {}
 
   public updateUserProfile(
@@ -61,18 +63,24 @@ export class UserProfilesService {
                 .pipe(
                   switchMap((hashedPassword) => {
                     return from(
-                      this.connection.manager.update(
-                        UserEntity,
-                        { id: user.id },
-                        {
-                          hashed_password: hashedPassword,
+                      this.connection.transaction(
+                        async (transactionalEntityManager) => {
+                          await transactionalEntityManager.update(
+                            UserEntity,
+                            { id: user.id },
+                            {
+                              hashed_password: hashedPassword,
+                            },
+                          );
+                          await this.loginTokensService.invalidateAllLoginTokensOfUserUsingTransaction(
+                            transactionalEntityManager,
+                            user,
+                          );
+                          return this.connection.manager.findOne(
+                            UserEntity,
+                            user.id,
+                          );
                         },
-                      ),
-                    ).pipe(
-                      switchMap(() =>
-                        from(
-                          this.connection.manager.findOne(UserEntity, user.id),
-                        ),
                       ),
                     );
                   }),
