@@ -22,4 +22,8 @@ export class PhotoUploadsService {
 
     return from(this.connection.manager.save(photoEntity));
   }
+
+  public getSpecificPhotoById(photoId): Observable<PhotoEntity> {
+    return from(this.connection.manager.findOne(PhotoEntity, photoId));
+  }
 }
