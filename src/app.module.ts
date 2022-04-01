@@ -19,6 +19,7 @@ import { MulterConfigService } from './services/multer-config.service';
 import { PhotoUploadsService } from './services/photo-uploads.service';
 import { PhotosController } from './controllers/photos/photos.controller';
 import { UserProfilesController } from './controllers/user-profiles/user-profiles.controller';
+import { UserProfilesService } from './services/user-profiles.service';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { UserProfilesController } from './controllers/user-profiles/user-profile
     UserEmailVerificationsService,
     AdminService,
     PhotoUploadsService,
+    UserProfilesService,
   ],
 })
 export class AppModule {}

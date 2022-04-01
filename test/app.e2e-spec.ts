@@ -6,6 +6,7 @@ import { CreateSpaceEventDto } from '../src/controllers/space-events/create-spac
 import moment from 'moment';
 import { UserEntity } from '../src/entities/user.entity';
 import { UserEmailVerificationEntity } from '../src/entities/user-email-verification.entity';
+import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 
 const e2eHelper = new TestE2eHelpers();
 let app: INestApplication;
@@ -221,6 +222,24 @@ describe('User Profile Flow (e2e)', () => {
 
     expect(response.status).toEqual(200);
     expect(response.body.id).toEqual(validUser.id);
+  });
+
+  it('/user-profiles/update-details (POST)', async () => {
+    const userDetails = {
+      first_name: randomStringGenerator(),
+      last_name: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/user-profiles/update-details')
+      .send(userDetails)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.first_name).toEqual(userDetails.first_name);
+    expect(response.body.last_name).toEqual(userDetails.last_name);
+    expect(response.body.hashed_password).toBeUndefined();
   });
 });
 
