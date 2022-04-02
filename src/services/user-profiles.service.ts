@@ -20,14 +20,21 @@ export class UserProfilesService {
     updateUserProfileDto: UpdateUserProfileDto,
     user: UserEntity,
   ): Observable<UserEntity> {
+    const newUserContent: Partial<UserEntity> = {};
+    for (let updateUserProfileDtoKey in updateUserProfileDto) {
+      if (
+        updateUserProfileDto[updateUserProfileDtoKey] &&
+        updateUserProfileDto[updateUserProfileDtoKey] !== undefined
+      ) {
+        newUserContent[updateUserProfileDtoKey] =
+          updateUserProfileDto[updateUserProfileDtoKey];
+      }
+    }
     return from(
       this.connection.manager.update(
         UserEntity,
         { id: user.id },
-        {
-          first_name: updateUserProfileDto.first_name,
-          last_name: updateUserProfileDto.last_name,
-        },
+        newUserContent,
       ),
     ).pipe(
       switchMap(() =>

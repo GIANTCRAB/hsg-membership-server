@@ -224,6 +224,23 @@ describe('User Profile Flow (e2e)', () => {
     expect(response.body.id).toEqual(validUser.id);
   });
 
+  it('/user-profiles/update-details (POST) partial update', async () => {
+    const userDetails = {
+      first_name: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/user-profiles/update-details')
+      .send(userDetails)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.first_name).toEqual(userDetails.first_name);
+    expect(response.body.last_name).toEqual(validUserData.last_name);
+    expect(response.body.hashed_password).toBeUndefined();
+  });
+
   it('/user-profiles/update-details (POST)', async () => {
     const userDetails = {
       first_name: randomStringGenerator(),
