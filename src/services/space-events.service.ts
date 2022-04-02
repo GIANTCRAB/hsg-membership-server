@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Between, Connection, LessThan, MoreThan } from 'typeorm';
-import { from, map, Observable } from 'rxjs';
+import { Between, Connection, LessThan, MoreThan, Not } from 'typeorm';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { SpaceEventEntity } from '../entities/space-event.entity';
 import { CreateSpaceEventDto } from '../controllers/space-events/create-space-event-dto';
 import { UserEntity } from '../entities/user.entity';
 import moment from 'moment';
 import { PhotoEntity } from '../entities/photo.entity';
+import { UpdateSpaceEventDto } from '../controllers/space-events/update-space-event-dto';
+import { UpdateSpaceEventDtoToEntity } from '../controllers/space-events/update-space-event-dto-to-entity';
 
 @Injectable()
 export class SpaceEventsService {
@@ -93,6 +95,19 @@ export class SpaceEventsService {
     );
   }
 
+  public updateSpaceEvent(
+    updateSpaceEventDto: UpdateSpaceEventDto,
+    spaceEvent: SpaceEventEntity,
+  ): Observable<SpaceEventEntity> {
+    return from(
+      this.connection.manager.update(
+        SpaceEventEntity,
+        { id: spaceEvent.id },
+        UpdateSpaceEventDtoToEntity.toEntity(updateSpaceEventDto),
+      ),
+    ).pipe(switchMap(() => this.getSpecificSpaceEventById(spaceEvent.id)));
+  }
+
   public checkForEventConflict(
     start_date: string,
     end_date: string,
@@ -104,18 +119,62 @@ export class SpaceEventsService {
         where: [
           {
             event_start_date: Between(event_start_date, event_end_date),
+            is_valid: true,
           },
           {
             event_end_date: Between(event_start_date, event_end_date),
+            is_valid: true,
           },
           {
             event_start_date: MoreThan(event_start_date),
             event_end_date: LessThan(event_start_date),
+            is_valid: true,
           },
-
           {
             event_start_date: LessThan(event_end_date),
             event_end_date: MoreThan(event_end_date),
+            is_valid: true,
+          },
+        ],
+      }),
+    ).pipe(map((results) => results !== 0));
+  }
+
+  public checkForEventConflictAndExcludeCertainEvent(
+    start_date: string,
+    end_date: string,
+    space_event: SpaceEventEntity,
+  ): Observable<boolean> {
+    const event_start_date = start_date
+      ? moment(start_date).utc().toDate()
+      : space_event.event_start_date;
+    const event_end_date = end_date
+      ? moment(end_date).utc().toDate()
+      : space_event.event_end_date;
+    return from(
+      this.connection.manager.count(SpaceEventEntity, {
+        where: [
+          {
+            event_start_date: Between(event_start_date, event_end_date),
+            id: Not(space_event.id),
+            is_valid: true,
+          },
+          {
+            event_end_date: Between(event_start_date, event_end_date),
+            id: Not(space_event.id),
+            is_valid: true,
+          },
+          {
+            event_start_date: MoreThan(event_start_date),
+            event_end_date: LessThan(event_start_date),
+            id: Not(space_event.id),
+            is_valid: true,
+          },
+          {
+            event_start_date: LessThan(event_end_date),
+            event_end_date: MoreThan(event_end_date),
+            id: Not(space_event.id),
+            is_valid: true,
           },
         ],
       }),

@@ -389,7 +389,7 @@ describe('Space Event Flow (e2e)', () => {
     const eventData: CreateSpaceEventDto = {
       title: 'test event',
       description: 'test stuff',
-      event_start_date: moment().utc().add(10, 'days').toISOString(),
+      event_start_date: moment().utc().add(20, 'days').toISOString(),
       event_end_date: moment().utc().add(40, 'days').toISOString(),
     };
     const response = await request(app.getHttpServer())
@@ -404,7 +404,7 @@ describe('Space Event Flow (e2e)', () => {
     const eventData: CreateSpaceEventDto = {
       title: 'test event',
       description: 'test stuff',
-      event_start_date: moment().utc().add(10, 'days').toISOString(),
+      event_start_date: moment().utc().add(20, 'days').toISOString(),
       event_end_date: moment().utc().add(150, 'days').toISOString(),
     };
     const response = await request(app.getHttpServer())
@@ -463,6 +463,67 @@ describe('Space Event Flow (e2e)', () => {
     );
     expect(response.body.organizer).toBeDefined();
     expect(response.body.photo).toBeNull();
+  });
+
+  it('/space-events/:id (POST)', async () => {
+    const newSpaceEventDetails = {
+      title: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/space-events/' + createdSpaceEvents[0].id)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken)
+      .send(newSpaceEventDetails);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(
+      expect.objectContaining({ id: createdSpaceEvents[0].id }),
+    );
+    expect(response.body.title).toEqual(newSpaceEventDetails.title);
+    expect(response.body.organizer).toBeDefined();
+    expect(response.body.photo).toBeNull();
+  });
+
+  it('/space-events/:id (POST) update with time', async () => {
+    const newSpaceEventDetails = {
+      title: randomStringGenerator(),
+      event_start_date: moment()
+        .utc()
+        .add(31, 'days')
+        .startOf('minute')
+        .toISOString(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/space-events/' + createdSpaceEvents[0].id)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken)
+      .send(newSpaceEventDetails);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(
+      expect.objectContaining({ id: createdSpaceEvents[0].id }),
+    );
+    expect(response.body.title).toEqual(newSpaceEventDetails.title);
+    expect(response.body.event_start_date).toEqual(
+      newSpaceEventDetails.event_start_date,
+    );
+    expect(response.body.organizer).toBeDefined();
+    expect(response.body.photo).toBeNull();
+  });
+
+  it('/space-events/:id (POST) update with conflict event_start_date', async () => {
+    const newSpaceEventDetails = {
+      title: randomStringGenerator(),
+      event_start_date: moment()
+        .utc()
+        .add(10, 'days')
+        .startOf('minute')
+        .toISOString(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/space-events/' + createdSpaceEvents[0].id)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken)
+      .send(newSpaceEventDetails);
+    expect(response.status).toEqual(422);
   });
 
   it('/space-events/:id (GET) for ones with photo should have photo', async () => {
