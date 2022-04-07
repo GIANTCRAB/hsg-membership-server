@@ -20,6 +20,7 @@ import { PhotoUploadsService } from './services/photo-uploads.service';
 import { PhotosController } from './controllers/photos/photos.controller';
 import { UserProfilesController } from './controllers/user-profiles/user-profiles.controller';
 import { UserProfilesService } from './services/user-profiles.service';
+import { ThrottleStorageService } from './services/throttle-storage-service';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { UserProfilesService } from './services/user-profiles.service';
     AdminService,
     PhotoUploadsService,
     UserProfilesService,
+    ThrottleStorageService,
   ],
 })
 export class AppModule {}
