@@ -163,11 +163,15 @@ describe('Authentication Flow (e2e)', () => {
   });
 
   it('/user-auth/login (POST)', async () => {
-    const userData = {
+    const loginData = {
       email: validUserData.email,
       password: validUserData.password,
     };
-    const response = await e2eHelper.createValidLoginToken(userData);
+    const response = await request(app.getHttpServer())
+      .post('/user-auth/login')
+      .send(loginData)
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(201);
     const userTokenResponse: UserTokenDto = response.body;
     loginToken = userTokenResponse.login_token.value;
     expect(userTokenResponse.login_token.is_valid).toEqual(true);
@@ -204,12 +208,8 @@ describe('User Profile Flow (e2e)', () => {
   beforeAll(async () => {
     await e2eHelper.resetDatabase();
     validUser = await e2eHelper.createValidUser(validUserData);
-    const userData = {
-      email: validUserData.email,
-      password: validUserData.password,
-    };
-    const response = await e2eHelper.createValidLoginToken(userData);
-    const userTokenResponse: UserTokenDto = response.body;
+    const userTokenResponse: UserTokenDto =
+      await e2eHelper.createValidLoginToken(validUser);
     loginToken = userTokenResponse.login_token.value;
     return app;
   });
@@ -312,12 +312,8 @@ describe('Space Event Flow (e2e)', () => {
   beforeAll(async () => {
     await e2eHelper.resetDatabase();
     validUser = await e2eHelper.createValidUser(validUserData);
-    const userData = {
-      email: validUserData.email,
-      password: validUserData.password,
-    };
-    const response = await e2eHelper.createValidLoginToken(userData);
-    const userTokenResponse: UserTokenDto = response.body;
+    const userTokenResponse: UserTokenDto =
+      await e2eHelper.createValidLoginToken(validUser);
     loginToken = userTokenResponse.login_token.value;
     return app;
   });

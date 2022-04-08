@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import request from 'supertest';
 import { RegisterUserDto } from '../src/controllers/registration/register-user-dto';
-import { LoginUserDto } from '../src/controllers/login/login-user-dto';
 import { getConnection } from 'typeorm';
 import { UsersService } from '../src/services/users.service';
-import { first, firstValueFrom, switchMap } from 'rxjs';
+import { first, firstValueFrom, map, switchMap } from 'rxjs';
 import { UserEmailVerificationsService } from '../src/services/user-email-verifications.service';
+import { UserTokenDto } from '../src/controllers/login/user-token-dto';
+import { UserEntity } from '../src/entities/user.entity';
+import { LoginTokensService } from '../src/services/login-tokens.service';
 
 export class TestE2eHelpers {
   moduleFixture: TestingModule;
@@ -80,12 +81,20 @@ export class TestE2eHelpers {
     );
   }
 
-  public async createValidLoginToken(loginData: LoginUserDto) {
-    const response = await request(this.app.getHttpServer())
-      .post('/user-auth/login')
-      .send(loginData)
-      .set('Accept', 'application/json');
-    expect(response.status).toEqual(201);
-    return response;
+  public async createValidLoginToken(
+    loginUser: UserEntity,
+  ): Promise<UserTokenDto> {
+    const loginTokensService = this.moduleFixture.get(LoginTokensService);
+    return firstValueFrom(
+      loginTokensService.createTokenForUser(loginUser).pipe(
+        map((loginToken) => {
+          const userTokenDto: UserTokenDto = {
+            user: loginUser,
+            login_token: loginToken,
+          };
+          return userTokenDto;
+        }),
+      ),
+    );
   }
 }
