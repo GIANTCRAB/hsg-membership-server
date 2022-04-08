@@ -193,6 +193,24 @@ describe('Authentication Flow (e2e)', () => {
       .set('Authorization', loginToken);
     expect(response.status).toEqual(403);
   });
+
+  it('/user-auth/login (POST) repeatedly causes throttle', async () => {
+    const loginData = {
+      email: validUserData.email,
+      password: validUserData.password,
+    };
+    const threshold = 30;
+    for (let i = 0; i < threshold; i++) {
+      await request(app.getHttpServer())
+        .post('/user-auth/login')
+        .send(loginData)
+        .set('Accept', 'application/json');
+    }
+    const response = await request(app.getHttpServer())
+      .post('/user-auth/login')
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(429);
+  });
 });
 
 describe('User Profile Flow (e2e)', () => {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RegistrationController } from './controllers/registration/registration.controller';
@@ -21,6 +21,7 @@ import { PhotosController } from './controllers/photos/photos.controller';
 import { UserProfilesController } from './controllers/user-profiles/user-profiles.controller';
 import { UserProfilesService } from './services/user-profiles.service';
 import { ThrottleStorageService } from './services/throttle-storage-service';
+import { ThrottleApiRequestMiddleware } from './middlewares/throttle-api-request.middleware';
 
 @Module({
   imports: [
@@ -57,4 +58,10 @@ import { ThrottleStorageService } from './services/throttle-storage-service';
     ThrottleStorageService,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ThrottleApiRequestMiddleware)
+      .forRoutes(LoginController, RegistrationController);
+  }
+}

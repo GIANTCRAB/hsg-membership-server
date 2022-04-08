@@ -1,37 +1,54 @@
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { ThrottleStorageInterface } from './throttle-storage.interface';
-import { defer, Observable, of } from 'rxjs';
+import { BehaviorSubject, first, map, Observable } from 'rxjs';
 
 @Injectable()
 export class ThrottleStorageService
   implements ThrottleStorageInterface, OnApplicationShutdown
 {
-  private _storedTiming: Record<string, NodeJS.Timeout[]> = {};
+  private _storedTiming: BehaviorSubject<Record<string, NodeJS.Timeout[]>> =
+    new BehaviorSubject<Record<string, NodeJS.Timeout[]>>({});
 
-  addRecord(key: string, secondsTtl: number): Observable<any> {
-    return defer(() => {
-      const milliSecondsTtl = secondsTtl * 1000;
-      const timer = setTimeout(() => {
-        clearTimeout(timer);
-        const listOfStoredTiming = this._storedTiming[key];
-        this._storedTiming[key] = listOfStoredTiming.filter(
-          (result) => result != timer,
-        );
-      }, milliSecondsTtl);
+  addRecord(key: string, secondsTtl: number): Observable<void> {
+    return this._storedTiming.pipe(
+      first(),
+      map((storedTimings) => {
+        const milliSecondsTtl = secondsTtl * 1000;
+        const timer = setTimeout(() => {
+          clearTimeout(timer);
+          storedTimings[key] = storedTimings[key].filter(
+            (result) => result != timer,
+          );
+          this._storedTiming.next(storedTimings);
+        }, milliSecondsTtl);
 
-      return undefined;
-    });
+        if (!storedTimings[key]) {
+          storedTimings[key] = [];
+        }
+        storedTimings[key].push(timer);
+        this._storedTiming.next(storedTimings);
+      }),
+    );
   }
 
   getRecord(key: string): Observable<number> {
-    return of(this._storedTiming[key].length);
+    return this._storedTiming.pipe(
+      map((storedTimings) =>
+        storedTimings[key] ? storedTimings[key].length : 0,
+      ),
+    );
   }
 
-  onApplicationShutdown(signal?: string): any {
-    for (const storedTimingKey in this._storedTiming) {
-      this._storedTiming[storedTimingKey].forEach((storedTiming) => {
+  resetAllRecords(): void {
+    const storedTimings = this._storedTiming.value;
+    for (const storedTimingKey in storedTimings) {
+      storedTimings[storedTimingKey].forEach((storedTiming) => {
         clearTimeout(storedTiming);
       });
     }
+  }
+
+  onApplicationShutdown(signal?: string): any {
+    this.resetAllRecords();
   }
 }
