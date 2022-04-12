@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -75,6 +76,22 @@ export class UserProfilesController {
               }
             }),
           );
+      }),
+    );
+  }
+
+  @Get(':id/view')
+  @UseGuards(UserTokenGuard)
+  getUserProfileDetails(@Param() params): Observable<object> {
+    return this.userProfilesService.getUserProfileById(params.id).pipe(
+      map((user) => {
+        if (user) {
+          return user;
+        }
+        throw new HttpException(
+          'User with such an ID could not be found.',
+          HttpStatus.NOT_FOUND,
+        );
       }),
     );
   }

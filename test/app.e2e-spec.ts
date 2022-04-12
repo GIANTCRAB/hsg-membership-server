@@ -289,6 +289,27 @@ describe('User Profile Flow (e2e)', () => {
     expect(response.body.hashed_password).toBeUndefined();
   });
 
+  it('/user-profiles/:id/view (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/user-profiles/' + validUser.id + '/view')
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.email).toBeUndefined();
+    expect(response.body.hashed_password).toBeUndefined();
+  });
+
+  it('/user-profiles/:id (GET) with invalid user id', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/user-profiles/abcd/view')
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(404);
+  });
+
   it('/user-profiles/update-details (POST) partial update', async () => {
     const userDetails = {
       first_name: randomStringGenerator(),
@@ -468,8 +489,7 @@ describe('Space Event Flow (e2e)', () => {
         '/space-events/' + spaceEventIdRequiringApproval + '/host-as-member',
       )
       .set('Accept', 'application/json')
-      .set('Authorization', userLoginToken)
-      .send();
+      .set('Authorization', userLoginToken);
     expect(response.status).toEqual(403);
   });
 
@@ -479,8 +499,7 @@ describe('Space Event Flow (e2e)', () => {
         '/space-events/' + spaceEventIdRequiringApproval + '/host-as-member',
       )
       .set('Accept', 'application/json')
-      .set('Authorization', memberLoginToken)
-      .send();
+      .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(200);
     expect(response.body.is_approved).toEqual(true);
     expect(response.body.organizer).toBeDefined();
@@ -747,8 +766,7 @@ describe('Admin User Management Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/admin/user-management/' + validUser.id + '/add-membership')
       .set('Accept', 'application/json')
-      .set('Authorization', adminLoginToken)
-      .send();
+      .set('Authorization', adminLoginToken);
     expect(response.status).toEqual(200);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.is_member).toEqual(true);
@@ -758,8 +776,7 @@ describe('Admin User Management Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/admin/user-management/' + validUser.id + '/remove-membership')
       .set('Accept', 'application/json')
-      .set('Authorization', adminLoginToken)
-      .send();
+      .set('Authorization', adminLoginToken);
     expect(response.status).toEqual(200);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.is_member).toEqual(false);

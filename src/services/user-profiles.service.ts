@@ -16,6 +16,10 @@ export class UserProfilesService {
     private readonly loginTokensService: LoginTokensService,
   ) {}
 
+  public getUserProfileById(userId: string): Observable<UserEntity> {
+    return this.usersService.getUserById(userId);
+  }
+
   public getFullUserProfile(user: UserEntity): Observable<UserEntity> {
     return this.usersService.getFullDisplayUserById(user.id);
   }
