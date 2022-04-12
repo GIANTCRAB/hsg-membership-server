@@ -28,7 +28,11 @@ export class UserProfilesController {
   getOwnProfileDetails(
     @Headers('authorization') authorizationToken: string,
   ): Observable<object> {
-    return this.loginTokensService.getUserFromToken(authorizationToken);
+    return this.loginTokensService
+      .getUserFromToken(authorizationToken)
+      .pipe(
+        switchMap((user) => this.userProfilesService.getFullUserProfile(user)),
+      );
   }
 
   @Post('update-details')

@@ -283,6 +283,8 @@ describe('User Profile Flow (e2e)', () => {
 
     expect(response.status).toEqual(200);
     expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.email).toEqual(validUserData.email);
+    expect(response.body.hashed_password).toBeUndefined();
   });
 
   it('/user-profiles/update-details (POST) partial update', async () => {
@@ -299,6 +301,7 @@ describe('User Profile Flow (e2e)', () => {
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.first_name).toEqual(userDetails.first_name);
     expect(response.body.last_name).toEqual(validUserData.last_name);
+    expect(response.body.email).toEqual(validUserData.email);
     expect(response.body.hashed_password).toBeUndefined();
   });
 
@@ -317,6 +320,7 @@ describe('User Profile Flow (e2e)', () => {
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.first_name).toEqual(userDetails.first_name);
     expect(response.body.last_name).toEqual(userDetails.last_name);
+    expect(response.body.email).toEqual(validUserData.email);
     expect(response.body.hashed_password).toBeUndefined();
   });
 
@@ -347,6 +351,7 @@ describe('User Profile Flow (e2e)', () => {
 
     expect(response.status).toEqual(200);
     expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.email).toEqual(validUserData.email);
     expect(response.body.hashed_password).toBeUndefined();
 
     // Changing password would invalidate all login tokens
@@ -407,6 +412,12 @@ describe('Space Event Flow (e2e)', () => {
       .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(201);
     expect(response.body.is_approved).toEqual(true);
+    expect(response.body.organizer).toBeDefined();
+    expect(response.body.organizer.id).toEqual(validMember.id);
+    expect(response.body.organizer.email).toBeUndefined();
+    expect(response.body.host).toBeDefined();
+    expect(response.body.host.id).toEqual(validMember.id);
+    expect(response.body.host.email).toBeUndefined();
     createdSpaceEvents.push(response.body);
   });
 

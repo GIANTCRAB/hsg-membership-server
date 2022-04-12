@@ -16,6 +16,10 @@ export class UserProfilesService {
     private readonly loginTokensService: LoginTokensService,
   ) {}
 
+  public getFullUserProfile(user: UserEntity): Observable<UserEntity> {
+    return this.usersService.getFullDisplayUserById(user.id);
+  }
+
   public updateUserProfile(
     updateUserProfileDto: UpdateUserProfileDto,
     user: UserEntity,
@@ -36,11 +40,7 @@ export class UserProfilesService {
         { id: user.id },
         newUserContent,
       ),
-    ).pipe(
-      switchMap(() =>
-        from(this.connection.manager.findOne(UserEntity, user.id)),
-      ),
-    );
+    ).pipe(switchMap(() => this.getFullUserProfile(user)));
   }
 
   public updateUserPassword(
@@ -83,13 +83,9 @@ export class UserProfilesService {
                             transactionalEntityManager,
                             user,
                           );
-                          return this.connection.manager.findOne(
-                            UserEntity,
-                            user.id,
-                          );
                         },
                       ),
-                    );
+                    ).pipe(switchMap(() => this.getFullUserProfile(user)));
                   }),
                 );
             } else {

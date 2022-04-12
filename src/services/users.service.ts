@@ -51,12 +51,37 @@ export class UsersService {
     );
   }
 
+  public getFullDisplayUserById(
+    userId: string,
+  ): Observable<UserEntity | undefined> {
+    return from(
+      this.connection.manager.findOne(UserEntity, {
+        where: {
+          id: userId,
+        },
+        select: [
+          'id',
+          'first_name',
+          'last_name',
+          'email',
+          'is_admin',
+          'is_verified',
+          'is_member',
+          'is_banned',
+          'created_at',
+          'updated_at',
+        ],
+      }),
+    );
+  }
+
   public getUserByEmail(email: string): Observable<UserEntity | undefined> {
     return from(
       this.connection.manager.findOne(UserEntity, {
         where: {
           email: email,
         },
+        select: ['id', 'email'],
       }),
     );
   }
@@ -89,7 +114,7 @@ export class UsersService {
           is_banned: false,
           is_verified: true,
         },
-        select: ['id', 'hashed_password'],
+        select: ['id', 'email', 'hashed_password'],
       }),
     ).pipe(
       first(),

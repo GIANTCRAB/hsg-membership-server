@@ -22,7 +22,7 @@ export class UserEntity {
   id: string;
 
   @IsEmail()
-  @Column({ unique: true })
+  @Column({ unique: true, select: false })
   email: string;
 
   @Exclude()
