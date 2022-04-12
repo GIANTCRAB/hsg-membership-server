@@ -13,6 +13,7 @@ import { SpaceEventEntity } from './space-event.entity';
 import { IsEmail } from 'class-validator';
 import { UserEmailVerificationEntity } from './user-email-verification.entity';
 import { PhotoEntity } from './photo.entity';
+import { InventoryItemEntity } from './inventory-item.entity';
 
 @Entity({
   name: 'users',
@@ -71,6 +72,24 @@ export class UserEntity {
 
   @OneToMany(() => SpaceEventEntity, (space_event) => space_event.host)
   hosted_space_events: SpaceEventEntity[];
+
+  @OneToMany(
+    () => InventoryItemEntity,
+    (inventory_item) => inventory_item.ohp_claimed_by,
+  )
+  claimed_inventory_items: InventoryItemEntity[];
+
+  @OneToMany(
+    () => InventoryItemEntity,
+    (inventory_item) => inventory_item.owned_by,
+  )
+  owned_inventory_items: InventoryItemEntity[];
+
+  @OneToMany(
+    () => InventoryItemEntity,
+    (inventory_item) => inventory_item.donated_by,
+  )
+  donated_inventory_items: InventoryItemEntity[];
 
   @OneToMany(() => PhotoEntity, (photo) => photo.uploaded_by)
   photos: PhotoEntity[];
