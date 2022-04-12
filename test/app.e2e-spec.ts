@@ -600,3 +600,53 @@ describe('Space Event Flow (e2e)', () => {
     expect(photoResponse.status).toEqual(200);
   });
 });
+
+describe('Admin User Management Flow (e2e)', () => {
+  let adminLoginToken: string = '';
+  const validUserData = {
+    email: 'test@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+  const validAdminData = {
+    email: 'test7@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+  let validUser: UserEntity;
+  let adminUser: UserEntity;
+
+  beforeAll(async () => {
+    await e2eHelper.resetDatabase();
+    validUser = await e2eHelper.createValidUser(validUserData);
+    adminUser = await e2eHelper.createValidAdmin(validAdminData);
+    const adminTokenResponse: UserTokenDto =
+      await e2eHelper.createValidLoginToken(adminUser);
+    adminLoginToken = adminTokenResponse.login_token.value;
+    return app;
+  });
+
+  it('/admin/user-management/:id/add-membership (POST)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/admin/user-management/' + validUser.id + '/add-membership')
+      .set('Accept', 'application/json')
+      .set('Authorization', adminLoginToken)
+      .send();
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.is_member).toEqual(true);
+  });
+
+  it('/admin/user-management/:id/remove-membership (POST)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/admin/user-management/' + validUser.id + '/remove-membership')
+      .set('Accept', 'application/json')
+      .set('Authorization', adminLoginToken)
+      .send();
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.is_member).toEqual(false);
+  });
+});
