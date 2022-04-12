@@ -23,6 +23,7 @@ import { UserProfilesService } from './services/user-profiles.service';
 import { ThrottleStorageService } from './services/throttle-storage-service';
 import { ThrottleApiRequestMiddleware } from './middlewares/throttle-api-request.middleware';
 import { AdminController } from './controllers/admin/admin.controller';
+import { InventoryItemsService } from './services/inventory-items.service';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { AdminController } from './controllers/admin/admin.controller';
     PhotoUploadsService,
     UserProfilesService,
     ThrottleStorageService,
+    InventoryItemsService,
   ],
 })
 export class AppModule {
