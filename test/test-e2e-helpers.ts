@@ -62,6 +62,26 @@ export class TestE2eHelpers {
     );
   }
 
+  public async createValidAdmin(userData: RegisterUserDto) {
+    const usersService: UsersService = this.moduleFixture.get(UsersService);
+    return firstValueFrom(
+      usersService.hashPassword(userData.password).pipe(
+        first(),
+        switchMap((hashedPassword) => {
+          return usersService.createUser({
+            email: userData.email,
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            is_banned: false,
+            is_verified: true,
+            is_admin: true,
+            hashed_password: hashedPassword,
+          });
+        }),
+      ),
+    );
+  }
+
   public async createBannedUser(userData: RegisterUserDto) {
     const usersService: UsersService = this.moduleFixture.get(UsersService);
     return firstValueFrom(

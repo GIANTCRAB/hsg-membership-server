@@ -22,8 +22,15 @@ afterAll(async () => {
 
 describe('Authentication Flow (e2e)', () => {
   let loginToken: string = '';
+  let adminLoginToken: string = '';
   const validUserData = {
     email: 'test@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+  const validAdminData = {
+    email: 'test7@example.org',
     first_name: 'test',
     last_name: 'surname',
     password: 'password123',
@@ -34,9 +41,11 @@ describe('Authentication Flow (e2e)', () => {
     last_name: 'surname',
     password: 'password123',
   };
+  let adminUser: UserEntity;
 
   beforeAll(async () => {
     await e2eHelper.resetDatabase();
+    adminUser = await e2eHelper.createValidAdmin(validAdminData);
     return app;
   });
 
@@ -175,6 +184,24 @@ describe('Authentication Flow (e2e)', () => {
     const userTokenResponse: UserTokenDto = response.body;
     loginToken = userTokenResponse.login_token.value;
     expect(userTokenResponse.login_token.is_valid).toEqual(true);
+    expect(userTokenResponse.user.is_admin).toEqual(false);
+    expect(userTokenResponse.user.hashed_password).toBeUndefined();
+  });
+
+  it('/user-auth/login (POST) as admin', async () => {
+    const loginData = {
+      email: validAdminData.email,
+      password: validAdminData.password,
+    };
+    const response = await request(app.getHttpServer())
+      .post('/user-auth/login')
+      .send(loginData)
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(201);
+    const userTokenResponse: UserTokenDto = response.body;
+    adminLoginToken = userTokenResponse.login_token.value;
+    expect(userTokenResponse.login_token.is_valid).toEqual(true);
+    expect(userTokenResponse.user.is_admin).toEqual(true);
     expect(userTokenResponse.user.hashed_password).toBeUndefined();
   });
 
