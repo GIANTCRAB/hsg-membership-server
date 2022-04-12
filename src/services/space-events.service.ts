@@ -208,4 +208,20 @@ export class SpaceEventsService {
       ),
     );
   }
+
+  public hostSpaceEvent(
+    spaceEvent: SpaceEventEntity,
+    host: UserEntity,
+  ): Observable<SpaceEventEntity> {
+    return from(
+      this.connection.manager.update(
+        SpaceEventEntity,
+        { id: spaceEvent.id },
+        {
+          is_approved: true,
+          host: host,
+        },
+      ),
+    ).pipe(switchMap(() => this.getSpecificSpaceEventById(spaceEvent.id)));
+  }
 }

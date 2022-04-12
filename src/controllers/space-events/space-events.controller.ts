@@ -19,6 +19,7 @@ import { CreateSpaceEventDto } from './create-space-event-dto';
 import { LoginTokensService } from '../../services/login-tokens.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateSpaceEventDto } from './update-space-event-dto';
+import { MemberTokenGuard } from '../../guards/member-token-guard';
 
 @Controller('space-events')
 export class SpaceEventsController {
@@ -77,6 +78,56 @@ export class SpaceEventsController {
       map((spaceEvent) => {
         if (spaceEvent) {
           return spaceEvent;
+        }
+        throw new HttpException(
+          'Space event with such an ID could not be found.',
+          HttpStatus.NOT_FOUND,
+        );
+      }),
+    );
+  }
+
+  @HttpCode(200)
+  @UseGuards(MemberTokenGuard)
+  @Post(':id/host-as-member')
+  hostSpaceEvent(
+    @Headers('authorization') authorizationToken: string,
+    @Param() params,
+  ): Observable<object> {
+    return this.spaceEventsService.getSpecificSpaceEventById(params.id).pipe(
+      switchMap((spaceEvent) => {
+        if (spaceEvent) {
+          if (!spaceEvent.is_approved) {
+            return this.spaceEventsService
+              .checkForEventConflict(
+                spaceEvent.event_start_date.toISOString(),
+                spaceEvent.event_end_date.toISOString(),
+              )
+              .pipe(
+                switchMap((hasConflict) => {
+                  if (!hasConflict) {
+                    return this.loginTokensService
+                      .getUserFromToken(authorizationToken)
+                      .pipe(
+                        switchMap((member) =>
+                          this.spaceEventsService.hostSpaceEvent(
+                            spaceEvent,
+                            member,
+                          ),
+                        ),
+                      );
+                  }
+                  throw new HttpException(
+                    'Conflict with an existing space event.',
+                    HttpStatus.UNPROCESSABLE_ENTITY,
+                  );
+                }),
+              );
+          }
+          throw new HttpException(
+            'Space event is already approved and hosted by a member.',
+            HttpStatus.BAD_REQUEST,
+          );
         }
         throw new HttpException(
           'Space event with such an ID could not be found.',
