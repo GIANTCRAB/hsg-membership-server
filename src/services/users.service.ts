@@ -126,7 +126,7 @@ export class UsersService {
             first(),
             switchMap((isValid) => {
               if (isValid) {
-                return this.getUserById(user.id);
+                return this.getFullDisplayUserById(user.id);
               }
               return of(null);
             }),

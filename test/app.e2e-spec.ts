@@ -184,6 +184,7 @@ describe('Authentication Flow (e2e)', () => {
     const userTokenResponse: UserTokenDto = response.body;
     loginToken = userTokenResponse.login_token.value;
     expect(userTokenResponse.login_token.is_valid).toEqual(true);
+    expect(userTokenResponse.user.email).toEqual(validUserData.email);
     expect(userTokenResponse.user.is_admin).toEqual(false);
     expect(userTokenResponse.user.hashed_password).toBeUndefined();
   });
@@ -201,6 +202,7 @@ describe('Authentication Flow (e2e)', () => {
     const userTokenResponse: UserTokenDto = response.body;
     adminLoginToken = userTokenResponse.login_token.value;
     expect(userTokenResponse.login_token.is_valid).toEqual(true);
+    expect(userTokenResponse.user.email).toEqual(validAdminData.email);
     expect(userTokenResponse.user.is_admin).toEqual(true);
     expect(userTokenResponse.user.hashed_password).toBeUndefined();
   });
