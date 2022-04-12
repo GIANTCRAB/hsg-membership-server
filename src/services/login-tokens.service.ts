@@ -59,6 +59,20 @@ export class LoginTokensService {
     ).pipe(map((result) => result !== 0));
   }
 
+  public verifyTokenIsMember(token: string): Observable<boolean> {
+    return from(
+      this.connection.manager.count(LoginTokenEntity, {
+        where: {
+          value: token,
+          is_valid: true,
+          expires_at: MoreThan(new Date().toISOString()),
+          user: { is_member: true },
+        },
+        relations: ['user'],
+      }),
+    ).pipe(map((result) => result !== 0));
+  }
+
   public getLoginTokenFromString(token: string): Observable<LoginTokenEntity> {
     return from(
       this.connection.manager.findOne(LoginTokenEntity, {
