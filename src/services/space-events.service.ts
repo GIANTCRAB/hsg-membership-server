@@ -19,6 +19,7 @@ export class SpaceEventsService {
       this.connection.manager.find(SpaceEventEntity, {
         where: {
           is_valid: true,
+          is_approved: true,
           event_start_date: MoreThan(new Date().toISOString()),
         },
         take: 5,
@@ -34,7 +35,7 @@ export class SpaceEventsService {
   ): Observable<SpaceEventEntity> {
     return from(
       this.connection.manager.findOne(SpaceEventEntity, spaceEventId, {
-        relations: ['organizer', 'photo'],
+        relations: ['organizer', 'photo', 'host'],
       }),
     );
   }
@@ -43,21 +44,23 @@ export class SpaceEventsService {
     createSpaceEventDto: CreateSpaceEventDto,
     organizer: UserEntity,
   ): Observable<SpaceEventEntity> {
-    return from(
-      this.connection.manager.save(
-        new SpaceEventEntity({
-          event_start_date: moment(createSpaceEventDto.event_start_date)
-            .utc()
-            .toDate(),
-          event_end_date: moment(createSpaceEventDto.event_end_date)
-            .utc()
-            .toDate(),
-          title: createSpaceEventDto.title,
-          description: createSpaceEventDto.description,
-          organizer: organizer,
-        }),
-      ),
-    );
+    const spaceEventEntity = new SpaceEventEntity({
+      event_start_date: moment(createSpaceEventDto.event_start_date)
+        .utc()
+        .toDate(),
+      event_end_date: moment(createSpaceEventDto.event_end_date).utc().toDate(),
+      title: createSpaceEventDto.title,
+      description: createSpaceEventDto.description,
+      organizer: organizer,
+    });
+
+    // If the organizer is a member, the event is automatically approved and the host will be the organizer
+    if (organizer.is_member) {
+      spaceEventEntity.is_approved = true;
+      spaceEventEntity.host = organizer;
+    }
+
+    return from(this.connection.manager.save(spaceEventEntity));
   }
 
   public createSpaceEventWithPhoto(
@@ -77,20 +80,27 @@ export class SpaceEventsService {
         const savedPhotoEntity = await transactionalEntityManager.save(
           photoEntity,
         );
-        return await transactionalEntityManager.save(
-          new SpaceEventEntity({
-            event_start_date: moment(createSpaceEventDto.event_start_date)
-              .utc()
-              .toDate(),
-            event_end_date: moment(createSpaceEventDto.event_end_date)
-              .utc()
-              .toDate(),
-            title: createSpaceEventDto.title,
-            description: createSpaceEventDto.description,
-            organizer: organizer,
-            photo: savedPhotoEntity,
-          }),
-        );
+
+        const spaceEventEntity = new SpaceEventEntity({
+          event_start_date: moment(createSpaceEventDto.event_start_date)
+            .utc()
+            .toDate(),
+          event_end_date: moment(createSpaceEventDto.event_end_date)
+            .utc()
+            .toDate(),
+          title: createSpaceEventDto.title,
+          description: createSpaceEventDto.description,
+          organizer: organizer,
+          photo: savedPhotoEntity,
+        });
+
+        // If the organizer is a member, the event is automatically approved and the host will be the organizer
+        if (organizer.is_member) {
+          spaceEventEntity.is_approved = true;
+          spaceEventEntity.host = organizer;
+        }
+
+        return await transactionalEntityManager.save(spaceEventEntity);
       }),
     );
   }
@@ -120,20 +130,24 @@ export class SpaceEventsService {
           {
             event_start_date: Between(event_start_date, event_end_date),
             is_valid: true,
+            is_approved: true,
           },
           {
             event_end_date: Between(event_start_date, event_end_date),
             is_valid: true,
+            is_approved: true,
           },
           {
             event_start_date: MoreThan(event_start_date),
             event_end_date: LessThan(event_start_date),
             is_valid: true,
+            is_approved: true,
           },
           {
             event_start_date: LessThan(event_end_date),
             event_end_date: MoreThan(event_end_date),
             is_valid: true,
+            is_approved: true,
           },
         ],
       }),
@@ -158,23 +172,27 @@ export class SpaceEventsService {
             event_start_date: Between(event_start_date, event_end_date),
             id: Not(space_event.id),
             is_valid: true,
+            is_approved: true,
           },
           {
             event_end_date: Between(event_start_date, event_end_date),
             id: Not(space_event.id),
             is_valid: true,
+            is_approved: true,
           },
           {
             event_start_date: MoreThan(event_start_date),
             event_end_date: LessThan(event_start_date),
             id: Not(space_event.id),
             is_valid: true,
+            is_approved: true,
           },
           {
             event_start_date: LessThan(event_end_date),
             event_end_date: MoreThan(event_end_date),
             id: Not(space_event.id),
             is_valid: true,
+            is_approved: true,
           },
         ],
       }),

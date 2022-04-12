@@ -360,22 +360,29 @@ describe('User Profile Flow (e2e)', () => {
 });
 
 describe('Space Event Flow (e2e)', () => {
-  let loginToken: string = '';
+  let memberLoginToken: string = '';
   const validUserData = {
     email: 'test@example.org',
     first_name: 'test',
     last_name: 'surname',
     password: 'password123',
   };
+  const validMemberData = {
+    email: 'test2@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+  let validMember: UserEntity;
   let validUser: UserEntity;
   const createdSpaceEvents = [];
 
   beforeAll(async () => {
     await e2eHelper.resetDatabase();
-    validUser = await e2eHelper.createValidUser(validUserData);
-    const userTokenResponse: UserTokenDto =
-      await e2eHelper.createValidLoginToken(validUser);
-    loginToken = userTokenResponse.login_token.value;
+    validMember = await e2eHelper.createValidMember(validMemberData);
+    const memberTokenResponse: UserTokenDto =
+      await e2eHelper.createValidLoginToken(validMember);
+    memberLoginToken = memberTokenResponse.login_token.value;
     return app;
   });
 
@@ -390,7 +397,7 @@ describe('Space Event Flow (e2e)', () => {
       .post('/space-events')
       .send(eventData)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken);
+      .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(201);
     createdSpaceEvents.push(response.body);
   });
@@ -407,8 +414,9 @@ describe('Space Event Flow (e2e)', () => {
       .attach('photo', './test/files/event-test.png')
       .field(eventData)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken);
+      .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(201);
+    expect(response.body.is_approved).toEqual(true);
     createdSpaceEvents.push(response.body);
   });
 
@@ -423,7 +431,7 @@ describe('Space Event Flow (e2e)', () => {
       .post('/space-events')
       .send(eventData)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken);
+      .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(422);
   });
 
@@ -438,7 +446,7 @@ describe('Space Event Flow (e2e)', () => {
       .post('/space-events')
       .send(eventData)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken);
+      .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(422);
   });
 
@@ -453,7 +461,7 @@ describe('Space Event Flow (e2e)', () => {
       .post('/space-events')
       .send(eventData)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken);
+      .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(422);
   });
 
@@ -468,7 +476,7 @@ describe('Space Event Flow (e2e)', () => {
       .post('/space-events')
       .send(eventData)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken);
+      .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(422);
   });
 
@@ -483,8 +491,9 @@ describe('Space Event Flow (e2e)', () => {
       .post('/space-events')
       .send(eventData)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken);
+      .set('Authorization', memberLoginToken);
     expect(response.status).toEqual(201);
+    expect(response.body.is_approved).toEqual(true);
     createdSpaceEvents.push(response.body);
   });
 
@@ -518,7 +527,9 @@ describe('Space Event Flow (e2e)', () => {
     expect(response.body).toEqual(
       expect.objectContaining({ id: createdSpaceEvents[0].id }),
     );
+    expect(response.body.is_approved).toEqual(true);
     expect(response.body.organizer).toBeDefined();
+    expect(response.body.host).toBeDefined();
     expect(response.body.photo).toBeNull();
   });
 
@@ -529,14 +540,16 @@ describe('Space Event Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/space-events/' + createdSpaceEvents[0].id)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken)
+      .set('Authorization', memberLoginToken)
       .send(newSpaceEventDetails);
     expect(response.status).toEqual(200);
     expect(response.body).toEqual(
       expect.objectContaining({ id: createdSpaceEvents[0].id }),
     );
+    expect(response.body.is_approved).toEqual(true);
     expect(response.body.title).toEqual(newSpaceEventDetails.title);
     expect(response.body.organizer).toBeDefined();
+    expect(response.body.host).toBeDefined();
     expect(response.body.photo).toBeNull();
   });
 
@@ -552,17 +565,19 @@ describe('Space Event Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/space-events/' + createdSpaceEvents[0].id)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken)
+      .set('Authorization', memberLoginToken)
       .send(newSpaceEventDetails);
     expect(response.status).toEqual(200);
     expect(response.body).toEqual(
       expect.objectContaining({ id: createdSpaceEvents[0].id }),
     );
     expect(response.body.title).toEqual(newSpaceEventDetails.title);
+    expect(response.body.is_approved).toEqual(true);
     expect(response.body.event_start_date).toEqual(
       newSpaceEventDetails.event_start_date,
     );
     expect(response.body.organizer).toBeDefined();
+    expect(response.body.host).toBeDefined();
     expect(response.body.photo).toBeNull();
   });
 
@@ -578,7 +593,7 @@ describe('Space Event Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/space-events/' + createdSpaceEvents[0].id)
       .set('Accept', 'application/json')
-      .set('Authorization', loginToken)
+      .set('Authorization', memberLoginToken)
       .send(newSpaceEventDetails);
     expect(response.status).toEqual(422);
   });
@@ -591,6 +606,8 @@ describe('Space Event Flow (e2e)', () => {
     expect(response.body).toEqual(
       expect.objectContaining({ id: createdSpaceEvents[1].id }),
     );
+    expect(response.body.is_approved).toEqual(true);
+    expect(response.body.host).toBeDefined();
     expect(response.body.organizer).toBeDefined();
     expect(response.body.photo).toBeDefined();
     const photoFileId = response.body.photo.id;

@@ -69,6 +69,9 @@ export class UserEntity {
   @OneToMany(() => SpaceEventEntity, (space_event) => space_event.organizer)
   organized_space_events: SpaceEventEntity[];
 
+  @OneToMany(() => SpaceEventEntity, (space_event) => space_event.host)
+  hosted_space_events: SpaceEventEntity[];
+
   @OneToMany(() => PhotoEntity, (photo) => photo.uploaded_by)
   photos: PhotoEntity[];
 

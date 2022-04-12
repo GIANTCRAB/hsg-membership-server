@@ -28,6 +28,10 @@ export class SpaceEventEntity {
   @Index()
   is_valid: boolean;
 
+  @Column({ default: false })
+  @Index()
+  is_approved: boolean;
+
   @CreateDateColumn()
   created_at: Date;
 
@@ -50,6 +54,11 @@ export class SpaceEventEntity {
     { nullable: true },
   )
   organizer: UserEntity;
+
+  @ManyToOne(() => UserEntity, (organizer) => organizer.hosted_space_events, {
+    nullable: true,
+  })
+  host: UserEntity;
 
   @ManyToOne(() => PhotoEntity, { nullable: true })
   photo: PhotoEntity;
