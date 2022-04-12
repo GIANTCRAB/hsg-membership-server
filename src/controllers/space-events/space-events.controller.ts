@@ -29,9 +29,15 @@ export class SpaceEventsController {
   ) {}
 
   @Get('latest')
-  // Events that have not yet past
+  // Events that have not yet past, limit of 5
   getRecentUpcoming(): Observable<object> {
     return this.spaceEventsService.getLatestValidEvents();
+  }
+
+  @Get('need-host')
+  // Events that have not yet past, limit of 5
+  getAwaitingApproval(): Observable<object> {
+    return this.spaceEventsService.getLatestNeedApprovalEvents();
   }
 
   @HttpCode(201)

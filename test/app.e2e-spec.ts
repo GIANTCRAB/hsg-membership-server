@@ -433,6 +433,22 @@ describe('Space Event Flow (e2e)', () => {
     spaceEventIdRequiringApproval = response.body.id;
   });
 
+  it('/space-events/need-host (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/space-events/need-host')
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: spaceEventIdRequiringApproval,
+          is_valid: true,
+          is_approved: false,
+        }),
+      ]),
+    );
+  });
+
   it('/space-events/:id/host-as-member (POST) as non-member', async () => {
     const response = await request(app.getHttpServer())
       .post(

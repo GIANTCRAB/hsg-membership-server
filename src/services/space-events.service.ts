@@ -30,6 +30,23 @@ export class SpaceEventsService {
     );
   }
 
+  // Limit of 5
+  public getLatestNeedApprovalEvents(): Observable<SpaceEventEntity[]> {
+    return from(
+      this.connection.manager.find(SpaceEventEntity, {
+        where: {
+          is_valid: true,
+          is_approved: false,
+          event_start_date: MoreThan(new Date().toISOString()),
+        },
+        take: 5,
+        order: {
+          event_start_date: 'ASC',
+        },
+      }),
+    );
+  }
+
   public getSpecificSpaceEventById(
     spaceEventId: string,
   ): Observable<SpaceEventEntity> {
