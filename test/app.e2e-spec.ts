@@ -205,6 +205,22 @@ describe('Authentication Flow (e2e)', () => {
     expect(userTokenResponse.user.hashed_password).toBeUndefined();
   });
 
+  it('/admin/is-admin (GET) as normal user', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/admin/is-admin')
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+    expect(response.status).toEqual(403);
+  });
+
+  it('/admin/is-admin (GET) as admin user', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/admin/is-admin')
+      .set('Accept', 'application/json')
+      .set('Authorization', adminLoginToken);
+    expect(response.status).toEqual(200);
+  });
+
   it('/user-auth/logout (DELETE)', async () => {
     const response = await request(app.getHttpServer())
       .delete('/user-auth/logout')

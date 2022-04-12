@@ -22,6 +22,7 @@ import { UserProfilesController } from './controllers/user-profiles/user-profile
 import { UserProfilesService } from './services/user-profiles.service';
 import { ThrottleStorageService } from './services/throttle-storage-service';
 import { ThrottleApiRequestMiddleware } from './middlewares/throttle-api-request.middleware';
+import { AdminController } from './controllers/admin/admin.controller';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ThrottleApiRequestMiddleware } from './middlewares/throttle-api-request
     UserEmailVerificationsController,
     PhotosController,
     UserProfilesController,
+    AdminController,
   ],
   providers: [
     UsersService,
