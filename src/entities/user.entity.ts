@@ -45,6 +45,10 @@ export class UserEntity {
 
   @Column({ default: false })
   @Index()
+  is_member: boolean;
+
+  @Column({ default: false })
+  @Index()
   is_banned: boolean;
 
   @CreateDateColumn()

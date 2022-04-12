@@ -71,6 +71,16 @@ export class UsersService {
     );
   }
 
+  public setUserMemberState(user: UserEntity, toMember: boolean) {
+    return from(
+      this.connection.manager.update(
+        UserEntity,
+        { id: user.id },
+        { is_member: toMember },
+      ),
+    );
+  }
+
   public loginUser(loginUserDto: LoginUserDto): Observable<UserEntity | null> {
     return from(
       this.connection.manager.findOne(UserEntity, {
