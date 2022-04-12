@@ -62,6 +62,14 @@ export class InventoryItemEntity {
   @IsDate()
   ohp_end_date: Date;
 
+  @Column({ nullable: true })
+  @IsDate()
+  ohp_disposed_date: Date;
+
+  @Column({ nullable: true })
+  @IsDate()
+  ohp_claimed_date: Date;
+
   @ManyToOne(() => UserEntity, (user) => user.claimed_inventory_items, {
     nullable: true,
   })
