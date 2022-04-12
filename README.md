@@ -82,6 +82,9 @@ If user possesses a valid, not expired login token, and the user has `is_admin` 
 
 /user-profiles/update-password (POST) [UserGuard] old_password, new_password
  - UserEntity
+
+/user-profiles/:id/view (GET) [UserGuard]
+ - UserEntity
 ```
 
 ### Space Events Endpoints
