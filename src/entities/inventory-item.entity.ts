@@ -10,6 +10,7 @@ import {
 import { UserEntity } from './user.entity';
 import { PhotoEntity } from './photo.entity';
 import { IsDate } from 'class-validator';
+import { InventoryCategoryEntity } from './inventory-category.entity';
 
 @Entity({
   name: 'inventory_items',
@@ -90,6 +91,20 @@ export class InventoryItemEntity {
     nullable: true,
   })
   donated_by: UserEntity;
+
+  @ManyToOne(() => UserEntity, (user) => user.donated_inventory_items, {
+    nullable: true,
+  })
+  maintained_by: UserEntity;
+
+  @ManyToOne(
+    () => InventoryCategoryEntity,
+    (category) => category.inventory_items,
+    {
+      nullable: true,
+    },
+  )
+  category: InventoryCategoryEntity;
 
   @ManyToOne(() => PhotoEntity, { nullable: true })
   photo: PhotoEntity;

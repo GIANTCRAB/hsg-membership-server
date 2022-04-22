@@ -7,6 +7,7 @@ import { SpaceEventEntity } from '../entities/space-event.entity';
 import { UserEmailVerificationEntity } from '../entities/user-email-verification.entity';
 import { PhotoEntity } from '../entities/photo.entity';
 import { InventoryItemEntity } from '../entities/inventory-item.entity';
+import { InventoryCategoryEntity } from '../entities/inventory-category.entity';
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -26,6 +27,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
         LoginTokenEntity,
         PhotoEntity,
         SpaceEventEntity,
+        InventoryCategoryEntity,
         InventoryItemEntity,
       ],
       synchronize: true,

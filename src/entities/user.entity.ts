@@ -91,6 +91,12 @@ export class UserEntity {
   )
   donated_inventory_items: InventoryItemEntity[];
 
+  @OneToMany(
+    () => InventoryItemEntity,
+    (inventory_item) => inventory_item.maintained_by,
+  )
+  maintained_inventory_items: InventoryItemEntity[];
+
   @OneToMany(() => PhotoEntity, (photo) => photo.uploaded_by)
   photos: PhotoEntity[];
 
