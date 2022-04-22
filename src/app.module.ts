@@ -24,6 +24,8 @@ import { ThrottleStorageService } from './services/throttle-storage-service';
 import { ThrottleApiRequestMiddleware } from './middlewares/throttle-api-request.middleware';
 import { AdminController } from './controllers/admin/admin.controller';
 import { InventoryItemsService } from './services/inventory-items.service';
+import { InventoryItemsController } from './controllers/inventory-items/inventory-items.controller';
+import { InventoryCategoriesService } from './services/inventory-categories.service';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { InventoryItemsService } from './services/inventory-items.service';
     PhotosController,
     UserProfilesController,
     AdminController,
+    InventoryItemsController,
   ],
   providers: [
     UsersService,
@@ -59,6 +62,7 @@ import { InventoryItemsService } from './services/inventory-items.service';
     PhotoUploadsService,
     UserProfilesService,
     ThrottleStorageService,
+    InventoryCategoriesService,
     InventoryItemsService,
   ],
 })

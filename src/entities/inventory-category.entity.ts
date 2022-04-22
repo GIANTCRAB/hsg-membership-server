@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -20,6 +21,10 @@ export class InventoryCategoryEntity {
 
   @Column({ type: 'mediumtext' })
   description: string;
+
+  @Column({ default: true })
+  @Index()
+  is_valid: boolean;
 
   @CreateDateColumn()
   created_at: Date;
