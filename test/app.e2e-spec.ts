@@ -9,6 +9,7 @@ import { UserEmailVerificationEntity } from '../src/entities/user-email-verifica
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { CreateInventoryItemDto } from '../src/controllers/inventory-items/create-inventory-item-dto';
 import { randomInt } from 'crypto';
+import { CreateInventoryCategoryDto } from '../src/controllers/inventory-categories/create-inventory-category-dto';
 
 const e2eHelper = new TestE2eHelpers();
 let app: INestApplication;
@@ -803,6 +804,7 @@ describe('Inventory Management Flow (e2e)', () => {
   };
   let validUser: UserEntity;
   let adminUser: UserEntity;
+  let createdCategoryId: string = '';
 
   beforeAll(async () => {
     await e2eHelper.resetDatabase();
@@ -817,6 +819,23 @@ describe('Inventory Management Flow (e2e)', () => {
     return app;
   });
 
+  it('/inventory-categories (POST)', async () => {
+    const inventoryCategory: Partial<CreateInventoryCategoryDto> = {
+      title: randomStringGenerator(),
+      description: randomStringGenerator() + ' ' + randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/inventory-categories')
+      .set('Accept', 'application/json')
+      .set('Authorization', adminLoginToken)
+      .send(inventoryCategory);
+    expect(response.status).toEqual(201);
+    expect(response.body.title).toEqual(inventoryCategory.title);
+    expect(response.body.description).toEqual(inventoryCategory.description);
+    expect(response.body.id).toBeDefined();
+    createdCategoryId = response.body.id;
+  });
+
   it('/inventory-items (POST)', async () => {
     const inventoryItem: Partial<CreateInventoryItemDto> = {
       title: randomStringGenerator(),
@@ -826,6 +845,7 @@ describe('Inventory Management Flow (e2e)', () => {
       is_working: true,
       owned_by_user_id: validUser.id,
       maintained_by_user_id: validUser.id,
+      category_id: createdCategoryId,
     };
     const response = await request(app.getHttpServer())
       .post('/inventory-items')
@@ -844,6 +864,8 @@ describe('Inventory Management Flow (e2e)', () => {
     expect(response.body.owned_by.id).toEqual(validUser.id);
     expect(response.body.maintained_by).toBeDefined();
     expect(response.body.maintained_by.id).toEqual(validUser.id);
+    expect(response.body.category).toBeDefined();
+    expect(response.body.category.id).toEqual(inventoryItem.category_id);
     expect(response.body.photo).toBeUndefined();
   });
 
