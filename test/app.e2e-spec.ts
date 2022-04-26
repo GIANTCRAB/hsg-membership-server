@@ -836,6 +836,25 @@ describe('Inventory Management Flow (e2e)', () => {
     createdCategoryId = response.body.id;
   });
 
+  it('/inventory-categories/:id (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/inventory-categories/' + createdCategoryId)
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(createdCategoryId);
+  });
+
+  it('/inventory-categories (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/inventory-categories')
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body.data).toBeDefined();
+    expect(response.body.current_page).toEqual(1);
+    expect(response.body.last_page).toEqual(1);
+    expect(response.body.total_count).toEqual(1);
+  });
+
   it('/inventory-items (POST)', async () => {
     const inventoryItem: Partial<CreateInventoryItemDto> = {
       title: randomStringGenerator(),
