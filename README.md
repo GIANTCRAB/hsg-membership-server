@@ -1,14 +1,29 @@
 # Hackerspace Membership Server
 
-This is the operating backend of a Hackerspace membership management server. It includes feature like user registration, user login and event management.
+This is the operating backend of a Hackerspace membership management server. It includes feature like user registration,
+user login and event management.
+
+## Installation
+
+```
+npm install
+```
 
 ## Configuration
 
-A sample configuration file named `.env.sample` is given in the main directory. It needs to be copied and renamed as `.env` for environment variables to work.
+A sample configuration file named `.env.sample` is given in the main directory. It needs to be copied and renamed
+as `.env` for environment variables to work.
+
+## Running
+
+```
+npm run start
+```
 
 ## Space Events
 
-If the user isn't a member, they would require a proxy-host that is a member to host their events. Members who organize events will have their events automagically approved.
+If the user isn't a member, they would require a proxy-host that is a member to host their events. Members who organize
+events will have their events automagically approved.
 
 ## License
 
@@ -34,82 +49,12 @@ If user possesses a valid, not expired login token, and the user has `is_admin` 
 
 ## Endpoints
 
-### Admin Endpoints
+Make sure you have configured your application.
+
+Run the following commands:
 
 ```
-/admin/is-admin (GET) [AdminGuard]
-
-/admin/user-management/:id/add-membership (POST) [AdminGuard]
- - UserEntity
-
-/admin/user-management/:id/remove-membership (POST) [AdminGuard]
- - UserEntity
+npm run start
 ```
 
-### Login Endpoints
-
-```
-/user-auth/login (POST) email, password
- - Object 
-    - user: UserEntity
-    - login_token: LoginTokenEntity
-
-/user-auth/logout (DELETE) [UserGuard]
-```
-
-### Registration Endpoints
-
-```
-/user-registration (POST) email, first_name, last_name, password
- - UserEntity
-```
-
-### User Email Verification Endpoints
-
-```
-/user-email-verifications/:id (POST) code
- - UserEmailVerificationEntity
-```
-
-### User Profile Endpoints
-
-```
-/user-profiles/self (GET) [UserGuard]
- - UserEntity
-
-/user-profiles/update-details (POST) [UserGuard] first_name, last_name
- - UserEntity
-
-/user-profiles/update-password (POST) [UserGuard] old_password, new_password
- - UserEntity
-
-/user-profiles/:id/view (GET) [UserGuard]
- - UserEntity
-```
-
-### Space Events Endpoints
-
-```
-/space-events/latest (GET)
- - Array
-    - SpaceEventEntity
-
-/space-events/need-host (GET)
- - Array
-    - SpaceEventEntity
-
-/space-events/with-photo (POST) [UserGuard] photo, title, description, event_start_date, event_end_date
- - SpaceEventEntity
-
-/space-events (POST) [UserGuard] photo, title, description, event_start_date, event_end_date
- - SpaceEventEntity
-
-/space-events/:id (GET)
- - SpaceEventEntity
-
-/space-events/:id (POST) [UserGuard] title, description, event_start_date, event_end_date
- - SpaceEventEntity
-
-/space-events/:id/host-as-member (POST) [MemberGuard]
- - SpaceEventEntity
-```
+Thereafter, go to `localhost:<APP_PORT>/api` to view the swagger interface.
