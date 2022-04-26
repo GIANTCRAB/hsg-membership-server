@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
-import { firstValueFrom, from, Observable } from 'rxjs';
+import { firstValueFrom, from, map, Observable } from 'rxjs';
 import { InventoryItemEntity } from '../entities/inventory-item.entity';
 import { CreateInventoryItemDto } from '../controllers/inventory-items/create-inventory-item-dto';
 import { UsersService } from './users.service';
@@ -8,6 +8,8 @@ import moment from 'moment';
 import { InventoryCategoriesService } from './inventory-categories.service';
 import { UserEntity } from '../entities/user.entity';
 import { PhotoUploadsService } from './photo-uploads.service';
+import { ListDataDto } from '../shared-dto/list-data.dto';
+import { DataMapperHelper } from '../shared-helpers/data-mapper.helper';
 
 @Injectable()
 export class InventoryItemsService {
@@ -40,16 +42,24 @@ export class InventoryItemsService {
   }
 
   public getInventoryItemsAndCount(
-    page: number = 0,
-  ): Observable<[InventoryItemEntity[], number]> {
-    const toTake = 30;
-    const toSkip = toTake * page;
+    page: number = 1,
+  ): Observable<ListDataDto<InventoryItemEntity>> {
+    const databaseIndex = page - 1;
+    const toTake = DataMapperHelper.defaultToTake;
+    const toSkip = toTake * databaseIndex;
     return from(
       this.connection.manager.findAndCount(InventoryItemEntity, {
         where: { is_valid: true },
         skip: toSkip,
         take: toTake,
       }),
+    ).pipe(
+      map((result) =>
+        DataMapperHelper.mapArrayToListDataDto<InventoryItemEntity>(
+          page,
+          result,
+        ),
+      ),
     );
   }
 

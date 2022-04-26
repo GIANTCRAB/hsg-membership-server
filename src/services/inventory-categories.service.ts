@@ -4,6 +4,7 @@ import { from, map, Observable } from 'rxjs';
 import { InventoryCategoryEntity } from '../entities/inventory-category.entity';
 import { CreateInventoryCategoryDto } from '../controllers/inventory-categories/create-inventory-category-dto';
 import { ListDataDto } from '../shared-dto/list-data.dto';
+import { DataMapperHelper } from '../shared-helpers/data-mapper.helper';
 
 @Injectable()
 export class InventoryCategoriesService {
@@ -13,7 +14,7 @@ export class InventoryCategoriesService {
     page: number = 1,
   ): Observable<ListDataDto<InventoryCategoryEntity>> {
     const databaseIndex = page - 1;
-    const toTake = 30;
+    const toTake = DataMapperHelper.defaultToTake;
     const toSkip = toTake * databaseIndex;
     return from(
       this.connection.manager.findAndCount(InventoryCategoryEntity, {
@@ -22,17 +23,12 @@ export class InventoryCategoriesService {
         take: toTake,
       }),
     ).pipe(
-      map((result) => {
-        const totalCount = result[1];
-        const finalResult: ListDataDto<InventoryCategoryEntity> = {
-          data: result[0],
-          current_page: page,
-          last_page: Math.floor(totalCount / toTake) + 1,
-          total_count: totalCount,
-        };
-
-        return finalResult;
-      }),
+      map((result) =>
+        DataMapperHelper.mapArrayToListDataDto<InventoryCategoryEntity>(
+          page,
+          result,
+        ),
+      ),
     );
   }
 
