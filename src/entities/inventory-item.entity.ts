@@ -97,6 +97,11 @@ export class InventoryItemEntity {
   })
   maintained_by: UserEntity;
 
+  @ManyToOne(() => UserEntity, (user) => user.created_inventory_items, {
+    nullable: true,
+  })
+  created_by: UserEntity;
+
   @ManyToOne(
     () => InventoryCategoryEntity,
     (category) => category.inventory_items,

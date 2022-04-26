@@ -97,6 +97,12 @@ export class UserEntity {
   )
   maintained_inventory_items: InventoryItemEntity[];
 
+  @OneToMany(
+    () => InventoryItemEntity,
+    (inventory_item) => inventory_item.created_by,
+  )
+  created_inventory_items: InventoryItemEntity[];
+
   @OneToMany(() => PhotoEntity, (photo) => photo.uploaded_by)
   photos: PhotoEntity[];
 
