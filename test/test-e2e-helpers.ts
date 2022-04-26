@@ -13,7 +13,6 @@ import { LoginTokensService } from '../src/services/login-tokens.service';
 export class TestE2eHelpers {
   moduleFixture: TestingModule;
   app: INestApplication = null;
-  testHelper: TestE2eHelpers = null;
 
   public async startServer(): Promise<INestApplication> {
     this.moduleFixture = await Test.createTestingModule({
@@ -26,12 +25,12 @@ export class TestE2eHelpers {
     return this.app;
   }
 
-  public async stopServer() {
-    return this.app.close();
+  public async stopServer(): Promise<void> {
+    await this.app.close();
   }
 
   public async resetDatabase(): Promise<void> {
-    return getConnection().synchronize(true);
+    await getConnection().synchronize(true);
   }
 
   public async getEmailVerificationToken(email: string) {

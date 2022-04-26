@@ -7,6 +7,8 @@ import moment from 'moment';
 import { UserEntity } from '../src/entities/user.entity';
 import { UserEmailVerificationEntity } from '../src/entities/user-email-verification.entity';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
+import { CreateInventoryItemDto } from '../src/controllers/inventory-items/create-inventory-item-dto';
+import { randomInt } from 'crypto';
 
 const e2eHelper = new TestE2eHelpers();
 let app: INestApplication;
@@ -780,5 +782,98 @@ describe('Admin User Management Flow (e2e)', () => {
     expect(response.status).toEqual(200);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.is_member).toEqual(false);
+  });
+});
+
+describe('Inventory Management Flow (e2e)', () => {
+  let adminLoginToken: string = '';
+  let userLoginToken: string = '';
+  const validUserData = {
+    email: 'test@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+  const validAdminData = {
+    email: 'test7@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+  let validUser: UserEntity;
+  let adminUser: UserEntity;
+
+  beforeAll(async () => {
+    await e2eHelper.resetDatabase();
+    validUser = await e2eHelper.createValidUser(validUserData);
+    adminUser = await e2eHelper.createValidAdmin(validAdminData);
+    const userTokenResponse: UserTokenDto =
+      await e2eHelper.createValidLoginToken(validUser);
+    userLoginToken = userTokenResponse.login_token.value;
+    const adminTokenResponse: UserTokenDto =
+      await e2eHelper.createValidLoginToken(adminUser);
+    adminLoginToken = adminTokenResponse.login_token.value;
+    return app;
+  });
+
+  it('/inventory-items (POST)', async () => {
+    const inventoryItem: Partial<CreateInventoryItemDto> = {
+      title: randomStringGenerator(),
+      description: randomStringGenerator() + ' ' + randomStringGenerator(),
+      item_count: randomInt(1, 100),
+      is_in_space: true,
+      is_working: true,
+      owned_by_user_id: validUser.id,
+      maintained_by_user_id: validUser.id,
+    };
+    const response = await request(app.getHttpServer())
+      .post('/inventory-items')
+      .set('Accept', 'application/json')
+      .set('Authorization', adminLoginToken)
+      .send(inventoryItem);
+    expect(response.status).toEqual(201);
+    expect(response.body.title).toEqual(inventoryItem.title);
+    expect(response.body.description).toEqual(inventoryItem.description);
+    expect(response.body.item_count).toEqual(inventoryItem.item_count);
+    expect(response.body.is_in_space).toEqual(inventoryItem.is_in_space);
+    expect(response.body.is_working).toEqual(inventoryItem.is_working);
+    expect(response.body.created_by).toBeDefined();
+    expect(response.body.created_by.id).toEqual(adminUser.id);
+    expect(response.body.owned_by).toBeDefined();
+    expect(response.body.owned_by.id).toEqual(validUser.id);
+    expect(response.body.maintained_by).toBeDefined();
+    expect(response.body.maintained_by.id).toEqual(validUser.id);
+    expect(response.body.photo).toBeUndefined();
+  });
+
+  it('/inventory-items/with-photo (POST)', async () => {
+    const inventoryItem: Partial<CreateInventoryItemDto> = {
+      title: randomStringGenerator(),
+      description: randomStringGenerator() + ' ' + randomStringGenerator(),
+      item_count: randomInt(1, 100),
+      is_in_space: true,
+      is_working: true,
+      owned_by_user_id: validUser.id,
+      maintained_by_user_id: validUser.id,
+    };
+    const response = await request(app.getHttpServer())
+      .post('/inventory-items/with-photo')
+      .attach('photo', './test/files/event-test.png')
+      .field(inventoryItem)
+      .set('Accept', 'application/json')
+      .set('Authorization', adminLoginToken);
+    expect(response.status).toEqual(201);
+    expect(response.body.title).toEqual(inventoryItem.title);
+    expect(response.body.description).toEqual(inventoryItem.description);
+    expect(response.body.item_count).toEqual(inventoryItem.item_count);
+    expect(response.body.is_in_space).toEqual(inventoryItem.is_in_space);
+    expect(response.body.is_working).toEqual(inventoryItem.is_working);
+    expect(response.body.created_by).toBeDefined();
+    expect(response.body.created_by.id).toEqual(adminUser.id);
+    expect(response.body.owned_by).toBeDefined();
+    expect(response.body.owned_by.id).toEqual(validUser.id);
+    expect(response.body.maintained_by).toBeDefined();
+    expect(response.body.maintained_by.id).toEqual(validUser.id);
+    expect(response.body.photo).toBeDefined();
   });
 });

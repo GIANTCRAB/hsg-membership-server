@@ -36,7 +36,7 @@ export class PhotoUploadsService {
       uploaded_by: user,
     });
 
-    return transactionalEntityManager.save(photoEntity);
+    return transactionalEntityManager.save<PhotoEntity>(photoEntity);
   }
 
   public getSpecificPhotoById(photoId): Observable<PhotoEntity> {
