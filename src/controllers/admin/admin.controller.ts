@@ -10,6 +10,7 @@ import { Observable, of, switchMap } from 'rxjs';
 import { UsersService } from '../../services/users.service';
 import { AdminTokenGuard } from '../../guards/admin-token-guard';
 import { AdminService } from '../../services/admin.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('admin')
 export class AdminController {
@@ -18,6 +19,7 @@ export class AdminController {
     private usersService: UsersService,
   ) {}
 
+  @ApiBearerAuth()
   @Get('is-admin')
   @UseGuards(AdminTokenGuard)
   @HttpCode(200)
@@ -25,6 +27,7 @@ export class AdminController {
     return of({ is_admin: true });
   }
 
+  @ApiBearerAuth()
   @Post('user-management/:id/add-membership')
   @UseGuards(AdminTokenGuard)
   @HttpCode(200)
@@ -34,6 +37,7 @@ export class AdminController {
       .pipe(switchMap((user) => this.adminService.addMembershipToUser(user)));
   }
 
+  @ApiBearerAuth()
   @Post('user-management/:id/remove-membership')
   @UseGuards(AdminTokenGuard)
   @HttpCode(200)

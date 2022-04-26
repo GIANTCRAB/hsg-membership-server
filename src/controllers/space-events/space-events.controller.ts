@@ -20,6 +20,7 @@ import { LoginTokensService } from '../../services/login-tokens.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateSpaceEventDto } from './update-space-event-dto';
 import { MemberTokenGuard } from '../../guards/member-token-guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('space-events')
 export class SpaceEventsController {
@@ -40,6 +41,7 @@ export class SpaceEventsController {
     return this.spaceEventsService.getLatestNeedApprovalEvents();
   }
 
+  @ApiBearerAuth()
   @HttpCode(201)
   @UseGuards(UserTokenGuard)
   @UseInterceptors(FileInterceptor('photo'))
@@ -93,6 +95,7 @@ export class SpaceEventsController {
     );
   }
 
+  @ApiBearerAuth()
   @HttpCode(200)
   @UseGuards(MemberTokenGuard)
   @Post(':id/host-as-member')
@@ -143,6 +146,7 @@ export class SpaceEventsController {
     );
   }
 
+  @ApiBearerAuth()
   @HttpCode(200)
   @UseGuards(UserTokenGuard)
   @Post(':id')
@@ -196,6 +200,7 @@ export class SpaceEventsController {
     );
   }
 
+  @ApiBearerAuth()
   @HttpCode(201)
   @UseGuards(UserTokenGuard)
   @Post()

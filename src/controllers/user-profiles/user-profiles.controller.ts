@@ -38,6 +38,7 @@ export class UserProfilesController {
       );
   }
 
+  @ApiBearerAuth()
   @Post('update-details')
   @HttpCode(200)
   @UseGuards(UserTokenGuard)
@@ -55,6 +56,7 @@ export class UserProfilesController {
     );
   }
 
+  @ApiBearerAuth()
   @Post('update-password')
   @HttpCode(200)
   @UseGuards(UserTokenGuard)
@@ -82,6 +84,7 @@ export class UserProfilesController {
     );
   }
 
+  @ApiBearerAuth()
   @Get(':id/view')
   @UseGuards(UserTokenGuard)
   getUserProfileDetails(@Param() params): Observable<object> {

@@ -14,6 +14,7 @@ import { InventoryItemsService } from '../../services/inventory-items.service';
 import { AdminTokenGuard } from '../../guards/admin-token-guard';
 import { LoginTokensService } from '../../services/login-tokens.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('inventory-items')
 export class InventoryItemsController {
@@ -22,6 +23,7 @@ export class InventoryItemsController {
     private readonly loginTokensService: LoginTokensService,
   ) {}
 
+  @ApiBearerAuth()
   @Post('with-photo')
   @HttpCode(201)
   @UseGuards(AdminTokenGuard)
@@ -44,6 +46,7 @@ export class InventoryItemsController {
       );
   }
 
+  @ApiBearerAuth()
   @Post()
   @HttpCode(201)
   @UseGuards(AdminTokenGuard)
