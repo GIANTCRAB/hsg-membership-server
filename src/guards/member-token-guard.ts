@@ -14,7 +14,7 @@ export class MemberTokenGuard implements CanActivate {
   }
 
   validateRequest(requestHeaders: any): Observable<boolean> {
-    const authorizationToken = requestHeaders['authorization'];
+    const authorizationToken = requestHeaders['authorization'].split(' ')[1];
     return this.loginTokensService.verifyTokenIsMember(authorizationToken);
   }
 }

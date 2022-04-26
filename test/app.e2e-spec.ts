@@ -98,6 +98,7 @@ describe('Authentication Flow (e2e)', () => {
       .send(validUserData)
       .set('Accept', 'application/json');
     expect(response.status).toEqual(201);
+    expect(response.body.hashed_password).toBeUndefined();
   });
 
   it('/user-registration (POST) with existing email', async () => {
@@ -184,7 +185,7 @@ describe('Authentication Flow (e2e)', () => {
       .set('Accept', 'application/json');
     expect(response.status).toEqual(201);
     const userTokenResponse: UserTokenDto = response.body;
-    loginToken = userTokenResponse.login_token.value;
+    loginToken = 'Bearer ' + userTokenResponse.login_token.value;
     expect(userTokenResponse.login_token.is_valid).toEqual(true);
     expect(userTokenResponse.user.email).toEqual(validUserData.email);
     expect(userTokenResponse.user.is_admin).toEqual(false);
@@ -202,7 +203,7 @@ describe('Authentication Flow (e2e)', () => {
       .set('Accept', 'application/json');
     expect(response.status).toEqual(201);
     const userTokenResponse: UserTokenDto = response.body;
-    adminLoginToken = userTokenResponse.login_token.value;
+    adminLoginToken = 'Bearer ' + userTokenResponse.login_token.value;
     expect(userTokenResponse.login_token.is_valid).toEqual(true);
     expect(userTokenResponse.user.email).toEqual(validAdminData.email);
     expect(userTokenResponse.user.is_admin).toEqual(true);
@@ -275,7 +276,7 @@ describe('User Profile Flow (e2e)', () => {
     validUser = await e2eHelper.createValidUser(validUserData);
     const userTokenResponse: UserTokenDto =
       await e2eHelper.createValidLoginToken(validUser);
-    loginToken = userTokenResponse.login_token.value;
+    loginToken = 'Bearer ' + userTokenResponse.login_token.value;
     return app;
   });
 
@@ -414,12 +415,12 @@ describe('Space Event Flow (e2e)', () => {
     validUser = await e2eHelper.createValidUser(validUserData);
     const userTokenResponse: UserTokenDto =
       await e2eHelper.createValidLoginToken(validUser);
-    userLoginToken = userTokenResponse.login_token.value;
+    userLoginToken = 'Bearer ' + userTokenResponse.login_token.value;
 
     validMember = await e2eHelper.createValidMember(validMemberData);
     const memberTokenResponse: UserTokenDto =
       await e2eHelper.createValidLoginToken(validMember);
-    memberLoginToken = memberTokenResponse.login_token.value;
+    memberLoginToken = 'Bearer ' + memberTokenResponse.login_token.value;
     return app;
   });
 
@@ -760,7 +761,7 @@ describe('Admin User Management Flow (e2e)', () => {
     adminUser = await e2eHelper.createValidAdmin(validAdminData);
     const adminTokenResponse: UserTokenDto =
       await e2eHelper.createValidLoginToken(adminUser);
-    adminLoginToken = adminTokenResponse.login_token.value;
+    adminLoginToken = 'Bearer ' + adminTokenResponse.login_token.value;
     return app;
   });
 
@@ -809,10 +810,10 @@ describe('Inventory Management Flow (e2e)', () => {
     adminUser = await e2eHelper.createValidAdmin(validAdminData);
     const userTokenResponse: UserTokenDto =
       await e2eHelper.createValidLoginToken(validUser);
-    userLoginToken = userTokenResponse.login_token.value;
+    userLoginToken = 'Bearer ' + userTokenResponse.login_token.value;
     const adminTokenResponse: UserTokenDto =
       await e2eHelper.createValidLoginToken(adminUser);
-    adminLoginToken = adminTokenResponse.login_token.value;
+    adminLoginToken = 'Bearer ' + adminTokenResponse.login_token.value;
     return app;
   });
 

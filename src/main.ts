@@ -15,7 +15,7 @@ async function bootstrap() {
       'Server API for managing the hackerspace and their members.',
     )
     .setVersion('1.0')
-    .addTag('hackerspace')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

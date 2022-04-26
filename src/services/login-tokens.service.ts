@@ -73,7 +73,10 @@ export class LoginTokensService {
     ).pipe(map((result) => result !== 0));
   }
 
-  public getLoginTokenFromString(token: string): Observable<LoginTokenEntity> {
+  public getLoginTokenFromString(
+    authorizationString: string,
+  ): Observable<LoginTokenEntity> {
+    const token = authorizationString.split(' ')[1];
     return from(
       this.connection.manager.findOne(LoginTokenEntity, {
         where: {
@@ -86,8 +89,8 @@ export class LoginTokensService {
     );
   }
 
-  public getUserFromToken(token: string): Observable<UserEntity> {
-    return this.getLoginTokenFromString(token).pipe(
+  public getUserFromToken(authorizationString: string): Observable<UserEntity> {
+    return this.getLoginTokenFromString(authorizationString).pipe(
       map((result) => result.user),
     );
   }

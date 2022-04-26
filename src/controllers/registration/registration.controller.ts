@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { RegisterUserDto } from './register-user-dto';
-import { map, Observable, switchMap } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { UsersService } from '../../services/users.service';
 import { UserEmailVerificationsService } from '../../services/user-email-verifications.service';
 
@@ -36,9 +36,9 @@ export class RegistrationController {
               return this.userEmailVerificationsService
                 .createUserEmailVerification(user)
                 .pipe(
-                  map((emailSuccess) => {
+                  switchMap((emailSuccess) => {
                     if (emailSuccess) {
-                      return user;
+                      return this.usersService.getFullDisplayUserById(user.id);
                     } else {
                       throw new HttpException(
                         'Account created successfully but email server is down. Please request for email verification again.',

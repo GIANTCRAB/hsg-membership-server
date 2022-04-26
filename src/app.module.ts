@@ -26,6 +26,7 @@ import { AdminController } from './controllers/admin/admin.controller';
 import { InventoryItemsService } from './services/inventory-items.service';
 import { InventoryItemsController } from './controllers/inventory-items/inventory-items.controller';
 import { InventoryCategoriesService } from './services/inventory-categories.service';
+import { InventoryCategoriesController } from './controllers/inventory-categories/inventory-categories.controller';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { InventoryCategoriesService } from './services/inventory-categories.serv
     PhotosController,
     UserProfilesController,
     AdminController,
+    InventoryCategoriesController,
     InventoryItemsController,
   ],
   providers: [

@@ -16,6 +16,7 @@ import { LoginTokensService } from '../../services/login-tokens.service';
 import { UserProfilesService } from '../../services/user-profiles.service';
 import { UpdateUserProfileDto } from './update-user-profile-dto';
 import { UpdateUserPasswordDto } from './update-user-password-dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('user-profiles')
 export class UserProfilesController {
@@ -24,6 +25,7 @@ export class UserProfilesController {
     private readonly userProfilesService: UserProfilesService,
   ) {}
 
+  @ApiBearerAuth()
   @Get('self')
   @UseGuards(UserTokenGuard)
   getOwnProfileDetails(
