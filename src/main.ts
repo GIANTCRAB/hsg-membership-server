@@ -10,10 +10,12 @@ async function bootstrap() {
   dotenv.config();
 
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Hackerspace Membership Server')
+    .setDescription(
+      'Server API for managing the hackerspace and their members.',
+    )
     .setVersion('1.0')
-    .addTag('cats')
+    .addTag('hackerspace')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
