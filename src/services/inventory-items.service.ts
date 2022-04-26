@@ -69,17 +69,19 @@ export class InventoryItemsService {
     return from(
       this.connection.manager.transaction(
         async (transactionalEntityManager) => {
-          if (createInventoryItemDto.not_working_description) {
-            inventoryItemEntity.not_working_description =
-              createInventoryItemDto.not_working_description;
-          }
+          if (!createInventoryItemDto.is_working) {
+            if (createInventoryItemDto.not_working_description) {
+              inventoryItemEntity.not_working_description =
+                createInventoryItemDto.not_working_description;
+            }
 
-          if (createInventoryItemDto.not_working_start_date) {
-            inventoryItemEntity.not_working_start_date = moment(
-              createInventoryItemDto.not_working_start_date,
-            )
-              .utc()
-              .toDate();
+            if (createInventoryItemDto.not_working_start_date) {
+              inventoryItemEntity.not_working_start_date = moment(
+                createInventoryItemDto.not_working_start_date,
+              )
+                .utc()
+                .toDate();
+            }
           }
 
           if (createInventoryItemDto.donated_by_user_id) {
