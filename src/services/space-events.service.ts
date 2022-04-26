@@ -5,13 +5,16 @@ import { SpaceEventEntity } from '../entities/space-event.entity';
 import { CreateSpaceEventDto } from '../controllers/space-events/create-space-event-dto';
 import { UserEntity } from '../entities/user.entity';
 import moment from 'moment';
-import { PhotoEntity } from '../entities/photo.entity';
 import { UpdateSpaceEventDto } from '../controllers/space-events/update-space-event-dto';
 import { UpdateSpaceEventDtoToEntity } from '../controllers/space-events/update-space-event-dto-to-entity';
+import { PhotoUploadsService } from './photo-uploads.service';
 
 @Injectable()
 export class SpaceEventsService {
-  constructor(private readonly connection: Connection) {}
+  constructor(
+    private readonly connection: Connection,
+    private readonly photoUploadsService: PhotoUploadsService,
+  ) {}
 
   // Limit of 5
   public getLatestValidEvents(): Observable<SpaceEventEntity[]> {
@@ -87,16 +90,13 @@ export class SpaceEventsService {
   ): Observable<SpaceEventEntity> {
     return from(
       this.connection.transaction(async (transactionalEntityManager) => {
-        const photoEntity: PhotoEntity = new PhotoEntity({
-          title: createSpaceEventDto.title,
-          filename: photo.filename,
-          mime_type: photo.mimetype,
-          uploaded_by: organizer,
-        });
-
-        const savedPhotoEntity = await transactionalEntityManager.save(
-          photoEntity,
-        );
+        const savedPhotoEntity =
+          await this.photoUploadsService.uploadPhotoUsingTransaction(
+            transactionalEntityManager,
+            photo,
+            createSpaceEventDto.title,
+            organizer,
+          );
 
         const spaceEventEntity = new SpaceEventEntity({
           event_start_date: moment(createSpaceEventDto.event_start_date)

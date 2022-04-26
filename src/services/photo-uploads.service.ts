@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Connection } from 'typeorm';
+import { Connection, EntityManager } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { PhotoEntity } from '../entities/photo.entity';
 import { from, Observable } from 'rxjs';
@@ -21,6 +21,22 @@ export class PhotoUploadsService {
     });
 
     return from(this.connection.manager.save(photoEntity));
+  }
+
+  public uploadPhotoUsingTransaction(
+    transactionalEntityManager: EntityManager,
+    photo: Express.Multer.File,
+    title: string,
+    user: UserEntity,
+  ): Promise<PhotoEntity> {
+    const photoEntity: PhotoEntity = new PhotoEntity({
+      title: title,
+      filename: photo.filename,
+      mime_type: photo.mimetype,
+      uploaded_by: user,
+    });
+
+    return transactionalEntityManager.save(photoEntity);
   }
 
   public getSpecificPhotoById(photoId): Observable<PhotoEntity> {
