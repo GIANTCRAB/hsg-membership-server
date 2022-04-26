@@ -31,6 +31,8 @@ This software is licensed under AGPLv3. More details can be found in the [LICENS
 
 # API Documentation
 
+API documentation is provided via Swagger UI. However, there are some things that must be noted in order to understand what is going on.
+
 ## Guards
 
 There are 3 guards in-place that checks the user's state. The 3 guards are [UserGuard], [MemberGuard] and [AdminGuard].
