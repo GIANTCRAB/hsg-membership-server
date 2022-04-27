@@ -31,6 +31,7 @@ export class InventoryItemsService {
         },
         relations: [
           'owned_by',
+          'category',
           'donated_by',
           'maintained_by',
           'created_by',
