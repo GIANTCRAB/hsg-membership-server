@@ -30,7 +30,6 @@ export class InventoryItemsService {
           is_valid: true,
         },
         relations: [
-          'ohp_claimed_by',
           'owned_by',
           'donated_by',
           'maintained_by',
