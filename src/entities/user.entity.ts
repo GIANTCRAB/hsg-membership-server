@@ -75,12 +75,6 @@ export class UserEntity {
 
   @OneToMany(
     () => InventoryItemEntity,
-    (inventory_item) => inventory_item.ohp_claimed_by,
-  )
-  claimed_inventory_items: InventoryItemEntity[];
-
-  @OneToMany(
-    () => InventoryItemEntity,
     (inventory_item) => inventory_item.owned_by,
   )
   owned_inventory_items: InventoryItemEntity[];
