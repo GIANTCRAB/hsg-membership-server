@@ -986,7 +986,7 @@ describe('Inventory Management Flow (e2e)', () => {
     expect(response.body.maintained_by.id).toEqual(validUser.id);
     expect(response.body.category).toBeDefined();
     expect(response.body.category.id).toEqual(createdCategoryId);
-    expect(response.body.photo).toBeUndefined();
+    expect(response.body.photo).toBeNull();
   });
 
   it('/inventory-items/abcde-f (GET)', async () => {
