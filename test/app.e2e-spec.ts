@@ -978,6 +978,15 @@ describe('Inventory Management Flow (e2e)', () => {
       .set('Accept', 'application/json');
     expect(response.status).toEqual(200);
     expect(response.body.id).toEqual(createdInventoryId);
+    expect(response.body.created_by).toBeDefined();
+    expect(response.body.created_by.id).toEqual(adminUser.id);
+    expect(response.body.owned_by).toBeDefined();
+    expect(response.body.owned_by.id).toEqual(validUser.id);
+    expect(response.body.maintained_by).toBeDefined();
+    expect(response.body.maintained_by.id).toEqual(validUser.id);
+    expect(response.body.category).toBeDefined();
+    expect(response.body.category.id).toEqual(createdCategoryId);
+    expect(response.body.photo).toBeUndefined();
   });
 
   it('/inventory-items/abcde-f (GET)', async () => {
