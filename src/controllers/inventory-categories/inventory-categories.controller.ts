@@ -10,9 +10,10 @@ import {
 import { AdminTokenGuard } from '../../guards/admin-token-guard';
 import { CreateInventoryCategoryDto } from './create-inventory-category-dto';
 import { InventoryCategoriesService } from '../../services/inventory-categories.service';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetPageDto } from '../../shared-dto/get-page.dto';
+import { DataMapperHelper } from '../../shared-helpers/data-mapper.helper';
 
 @Controller('inventory-categories')
 export class InventoryCategoriesController {
@@ -23,7 +24,13 @@ export class InventoryCategoriesController {
   @Get(':id')
   @HttpCode(200)
   getInventoryCategoryById(@Param() params): Observable<object> {
-    return this.inventoryCategoriesService.getInventoryCategoryById(params.id);
+    return this.inventoryCategoriesService
+      .getInventoryCategoryById(params.id)
+      .pipe(
+        map((inventoryItem) =>
+          DataMapperHelper.checkEntityAndReturnStatus(inventoryItem),
+        ),
+      );
   }
 
   @Get()

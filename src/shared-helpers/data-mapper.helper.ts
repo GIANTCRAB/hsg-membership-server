@@ -1,4 +1,5 @@
 import { ListDataDto } from '../shared-dto/list-data.dto';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class DataMapperHelper {
   static defaultToTake = 30;
@@ -13,5 +14,15 @@ export class DataMapperHelper {
     };
 
     return finalResult;
+  }
+
+  static checkEntityAndReturnStatus<T>(givenEntity: T) {
+    if (givenEntity) {
+      return givenEntity;
+    }
+    throw new HttpException(
+      'Entity with such an ID could not be found.',
+      HttpStatus.NOT_FOUND,
+    );
   }
 }

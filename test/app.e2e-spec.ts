@@ -824,6 +824,7 @@ describe('Inventory Management Flow (e2e)', () => {
   let validUser: UserEntity;
   let adminUser: UserEntity;
   let createdCategoryId: string = '';
+  let createdInventoryId: string = '';
 
   beforeAll(async () => {
     await e2eHelper.resetDatabase();
@@ -881,6 +882,13 @@ describe('Inventory Management Flow (e2e)', () => {
     expect(response.body.id).toEqual(createdCategoryId);
   });
 
+  it('/inventory-categories/abcde-f (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/inventory-categories/abcde-f')
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(404);
+  });
+
   it('/inventory-items (POST)', async () => {
     const inventoryItem: Partial<CreateInventoryItemDto> = {
       title: randomStringGenerator(),
@@ -912,6 +920,7 @@ describe('Inventory Management Flow (e2e)', () => {
     expect(response.body.category).toBeDefined();
     expect(response.body.category.id).toEqual(inventoryItem.category_id);
     expect(response.body.photo).toBeUndefined();
+    createdInventoryId = response.body.id;
   });
 
   it('/inventory-items/with-photo (POST)', async () => {
@@ -943,5 +952,38 @@ describe('Inventory Management Flow (e2e)', () => {
     expect(response.body.maintained_by).toBeDefined();
     expect(response.body.maintained_by.id).toEqual(validUser.id);
     expect(response.body.photo).toBeDefined();
+  });
+
+  it('/inventory-items (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/inventory-items')
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body.data).toBeDefined();
+    expect(response.body.data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: createdInventoryId,
+        }),
+      ]),
+    );
+    expect(response.body.current_page).toEqual(1);
+    expect(response.body.last_page).toEqual(1);
+    expect(response.body.total_count).toEqual(2);
+  });
+
+  it('/inventory-items/:id (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/inventory-items/' + createdInventoryId)
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(createdInventoryId);
+  });
+
+  it('/inventory-items/abcde-f (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/inventory-items/abcde-f')
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(404);
   });
 });
