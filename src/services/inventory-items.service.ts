@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
-import { firstValueFrom, from, map, Observable } from 'rxjs';
+import { firstValueFrom, from, map, Observable, switchMap } from 'rxjs';
 import { InventoryItemEntity } from '../entities/inventory-item.entity';
 import { CreateInventoryItemDto } from '../controllers/inventory-items/create-inventory-item-dto';
 import { UsersService } from './users.service';
@@ -10,6 +10,7 @@ import { UserEntity } from '../entities/user.entity';
 import { PhotoUploadsService } from './photo-uploads.service';
 import { ListDataDto } from '../shared-dto/list-data.dto';
 import { DataMapperHelper } from '../shared-helpers/data-mapper.helper';
+import { UpdateInventoryItemDto } from '../controllers/inventory-items/update-inventory-item-dto';
 
 @Injectable()
 export class InventoryItemsService {
@@ -79,7 +80,10 @@ export class InventoryItemsService {
     return from(
       this.connection.manager.transaction(
         async (transactionalEntityManager) => {
-          if (!createInventoryItemDto.is_working) {
+          if (
+            createInventoryItemDto.is_working !== undefined &&
+            !createInventoryItemDto.is_working
+          ) {
             if (createInventoryItemDto.not_working_description) {
               inventoryItemEntity.not_working_description =
                 createInventoryItemDto.not_working_description;
@@ -158,5 +162,112 @@ export class InventoryItemsService {
         },
       ),
     );
+  }
+
+  public updateInventoryItem(
+    updateInventoryItemDto: UpdateInventoryItemDto,
+    inventoryItem: InventoryItemEntity,
+  ): Observable<InventoryItemEntity | undefined> {
+    const updatedInventoryItemEntity: Partial<InventoryItemEntity> = {
+      title: updateInventoryItemDto.title ?? inventoryItem.title,
+      description:
+        updateInventoryItemDto.description ?? inventoryItem.description,
+      item_count: updateInventoryItemDto.item_count ?? inventoryItem.item_count,
+      is_in_space:
+        updateInventoryItemDto.is_in_space ?? inventoryItem.is_in_space,
+      is_working: updateInventoryItemDto.is_working ?? inventoryItem.is_working,
+    };
+    return from(
+      this.connection.manager.transaction(
+        async (transactionalEntityManager) => {
+          if (
+            updatedInventoryItemEntity.is_working !== undefined &&
+            !updatedInventoryItemEntity.is_working
+          ) {
+            if (updatedInventoryItemEntity.not_working_description) {
+              updatedInventoryItemEntity.not_working_description =
+                updateInventoryItemDto.not_working_description;
+            }
+
+            if (updatedInventoryItemEntity.not_working_start_date) {
+              updatedInventoryItemEntity.not_working_start_date = moment(
+                updateInventoryItemDto.not_working_start_date,
+              )
+                .utc()
+                .toDate();
+            }
+          }
+
+          if (updateInventoryItemDto.donated_by_user_id !== undefined) {
+            if (updateInventoryItemDto.donated_by_user_id === null) {
+              updatedInventoryItemEntity.donated_by = null;
+            } else {
+              const donatedByUser = await firstValueFrom(
+                this.usersService.getUserById(
+                  updateInventoryItemDto.donated_by_user_id,
+                ),
+              );
+
+              if (donatedByUser) {
+                updatedInventoryItemEntity.donated_by = donatedByUser;
+              }
+            }
+          }
+
+          if (updateInventoryItemDto.maintained_by_user_id !== undefined) {
+            if (updateInventoryItemDto.maintained_by_user_id === null) {
+              updatedInventoryItemEntity.maintained_by = null;
+            } else {
+              const maintainedByUser = await firstValueFrom(
+                this.usersService.getUserById(
+                  updateInventoryItemDto.maintained_by_user_id,
+                ),
+              );
+              if (maintainedByUser) {
+                updatedInventoryItemEntity.maintained_by = maintainedByUser;
+              }
+            }
+          }
+
+          if (updateInventoryItemDto.owned_by_user_id !== undefined) {
+            if (updateInventoryItemDto.owned_by_user_id === null) {
+              updatedInventoryItemEntity.owned_by = null;
+            } else {
+              const ownedByUser = await firstValueFrom(
+                this.usersService.getUserById(
+                  updateInventoryItemDto.owned_by_user_id,
+                ),
+              );
+              if (ownedByUser) {
+                updatedInventoryItemEntity.owned_by = ownedByUser;
+              }
+            }
+          }
+
+          if (updateInventoryItemDto.category_id !== undefined) {
+            if (updateInventoryItemDto.category_id === null) {
+              updatedInventoryItemEntity.category = null;
+            } else {
+              const category = await firstValueFrom(
+                this.inventoryCategoriesService.getInventoryCategoryById(
+                  updateInventoryItemDto.category_id,
+                ),
+              );
+              if (category) {
+                updatedInventoryItemEntity.category = category;
+              }
+            }
+          }
+
+          return transactionalEntityManager.update(
+            InventoryItemEntity,
+            {
+              id: inventoryItem.id,
+            },
+            updatedInventoryItemEntity,
+          );
+        },
+      ),
+    ).pipe(switchMap(() => this.getInventoryItemById(inventoryItem.id)));
   }
 }
