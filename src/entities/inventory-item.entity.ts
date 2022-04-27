@@ -47,35 +47,6 @@ export class InventoryItemEntity {
   @IsDate()
   not_working_start_date: Date;
 
-  @Column({ default: false })
-  @Index()
-  is_in_ohp_process: boolean;
-
-  @Column({ default: false })
-  @Index()
-  is_ohp: boolean;
-
-  @Column({ nullable: true })
-  @IsDate()
-  ohp_start_date: Date;
-
-  @Column({ nullable: true })
-  @IsDate()
-  ohp_end_date: Date;
-
-  @Column({ nullable: true })
-  @IsDate()
-  ohp_disposed_date: Date;
-
-  @Column({ nullable: true })
-  @IsDate()
-  ohp_claimed_date: Date;
-
-  @ManyToOne(() => UserEntity, (user) => user.claimed_inventory_items, {
-    nullable: true,
-  })
-  ohp_claimed_by: UserEntity;
-
   @CreateDateColumn()
   created_at: Date;
 
