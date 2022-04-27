@@ -281,6 +281,25 @@ describe('User Profile Flow (e2e)', () => {
     return app;
   });
 
+  it('/user-profiles (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/user-profiles')
+      .set('Accept', 'application/json');
+
+    expect(response.status).toEqual(200);
+    expect(response.body.data).toBeDefined();
+    expect(response.body.data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: validUser.id,
+        }),
+      ]),
+    );
+    expect(response.body.current_page).toEqual(1);
+    expect(response.body.last_page).toEqual(1);
+    expect(response.body.total_count).toEqual(1);
+  });
+
   it('/user-profiles/self (GET)', async () => {
     const response = await request(app.getHttpServer())
       .get('/user-profiles/self')
@@ -836,23 +855,30 @@ describe('Inventory Management Flow (e2e)', () => {
     createdCategoryId = response.body.id;
   });
 
-  it('/inventory-categories/:id (GET)', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/inventory-categories/' + createdCategoryId)
-      .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
-    expect(response.body.id).toEqual(createdCategoryId);
-  });
-
   it('/inventory-categories (GET)', async () => {
     const response = await request(app.getHttpServer())
       .get('/inventory-categories')
       .set('Accept', 'application/json');
     expect(response.status).toEqual(200);
     expect(response.body.data).toBeDefined();
+    expect(response.body.data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: createdCategoryId,
+        }),
+      ]),
+    );
     expect(response.body.current_page).toEqual(1);
     expect(response.body.last_page).toEqual(1);
     expect(response.body.total_count).toEqual(1);
+  });
+
+  it('/inventory-categories/:id (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/inventory-categories/' + createdCategoryId)
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(createdCategoryId);
   });
 
   it('/inventory-items (POST)', async () => {

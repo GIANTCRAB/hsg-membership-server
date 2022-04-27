@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
-import { first, from, Observable, of, switchMap } from 'rxjs';
+import { first, from, map, Observable, of, switchMap } from 'rxjs';
 import { UserEntity } from '../entities/user.entity';
 import { UpdateUserProfileDto } from '../controllers/user-profiles/update-user-profile-dto';
 import { UpdateUserPasswordDto } from '../controllers/user-profiles/update-user-password-dto';
 import argon2 from 'argon2';
 import { UsersService } from './users.service';
 import { LoginTokensService } from './login-tokens.service';
+import { ListDataDto } from '../shared-dto/list-data.dto';
+import { DataMapperHelper } from '../shared-helpers/data-mapper.helper';
 
 @Injectable()
 export class UserProfilesService {
@@ -15,6 +17,24 @@ export class UserProfilesService {
     private readonly usersService: UsersService,
     private readonly loginTokensService: LoginTokensService,
   ) {}
+
+  public getUserProfilesAndCount(
+    page: number = 1,
+  ): Observable<ListDataDto<UserEntity>> {
+    const databaseIndex = page - 1;
+    const toTake = DataMapperHelper.defaultToTake;
+    const toSkip = toTake * databaseIndex;
+    return from(
+      this.connection.manager.findAndCount(UserEntity, {
+        skip: toSkip,
+        take: toTake,
+      }),
+    ).pipe(
+      map((result) =>
+        DataMapperHelper.mapArrayToListDataDto<UserEntity>(page, result),
+      ),
+    );
+  }
 
   public getUserProfileById(userId: string): Observable<UserEntity> {
     return this.usersService.getUserById(userId);

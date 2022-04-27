@@ -17,6 +17,7 @@ import { UserProfilesService } from '../../services/user-profiles.service';
 import { UpdateUserProfileDto } from './update-user-profile-dto';
 import { UpdateUserPasswordDto } from './update-user-password-dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { GetPageDto } from '../../shared-dto/get-page.dto';
 
 @Controller('user-profiles')
 export class UserProfilesController {
@@ -24,6 +25,12 @@ export class UserProfilesController {
     private readonly loginTokensService: LoginTokensService,
     private readonly userProfilesService: UserProfilesService,
   ) {}
+
+  @Get()
+  @HttpCode(200)
+  getUserProfiles(@Body() getPageDto: GetPageDto): Observable<object> {
+    return this.userProfilesService.getUserProfilesAndCount(getPageDto.page);
+  }
 
   @ApiBearerAuth()
   @Get('self')
