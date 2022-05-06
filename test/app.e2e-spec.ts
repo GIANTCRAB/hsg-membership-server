@@ -11,6 +11,7 @@ import { CreateInventoryItemDto } from '../src/controllers/inventory-items/creat
 import { randomInt } from 'crypto';
 import { CreateInventoryCategoryDto } from '../src/controllers/inventory-categories/create-inventory-category-dto';
 import { UpdateInventoryItemDto } from '../src/controllers/inventory-items/update-inventory-item-dto';
+import { UpdateInventoryCategoryDto } from '../src/controllers/inventory-categories/update-inventory-category-dto';
 
 const e2eHelper = new TestE2eHelpers();
 let app: INestApplication;
@@ -888,6 +889,21 @@ describe('Inventory Management Flow (e2e)', () => {
       .get('/inventory-categories/abcde-f')
       .set('Accept', 'application/json');
     expect(response.status).toEqual(404);
+  });
+
+  it('/inventory-categories/:id (POST)', async () => {
+    const inventoryCategory: Partial<UpdateInventoryCategoryDto> = {
+      title: randomStringGenerator(),
+      description: randomStringGenerator() + ' ' + randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/inventory-categories/' + createdCategoryId)
+      .set('Accept', 'application/json')
+      .set('Authorization', adminLoginToken)
+      .send(inventoryCategory);
+    expect(response.status).toEqual(200);
+    expect(response.body.title).toEqual(inventoryCategory.title);
+    expect(response.body.description).toEqual(inventoryCategory.description);
   });
 
   it('/inventory-items (POST)', async () => {

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
-import { from, map, Observable } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { InventoryCategoryEntity } from '../entities/inventory-category.entity';
 import { CreateInventoryCategoryDto } from '../controllers/inventory-categories/create-inventory-category-dto';
 import { ListDataDto } from '../shared-dto/list-data.dto';
 import { DataMapperHelper } from '../shared-helpers/data-mapper.helper';
+import { UpdateInventoryCategoryDto } from '../controllers/inventory-categories/update-inventory-category-dto';
 
 @Injectable()
 export class InventoryCategoriesService {
@@ -42,6 +43,29 @@ export class InventoryCategoriesService {
           is_valid: true,
         },
       }),
+    );
+  }
+
+  public updateInventoryCategory(
+    updateInventoryCategoryDto: UpdateInventoryCategoryDto,
+    inventoryCategory: InventoryCategoryEntity,
+  ): Observable<InventoryCategoryEntity | undefined> {
+    const updatedInventoryCategoryEntity: Partial<InventoryCategoryEntity> = {
+      title: updateInventoryCategoryDto.title ?? inventoryCategory.title,
+      description:
+        updateInventoryCategoryDto.description ?? inventoryCategory.description,
+    };
+
+    return from(
+      this.connection.manager.update(
+        InventoryCategoryEntity,
+        {
+          id: inventoryCategory.id,
+        },
+        updatedInventoryCategoryEntity,
+      ),
+    ).pipe(
+      switchMap(() => this.getInventoryCategoryById(inventoryCategory.id)),
     );
   }
 
