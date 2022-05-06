@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { UserTokenDto } from '../src/controllers/login/user-token-dto';
 import { TestE2eHelpers } from './test-e2e-helpers';
@@ -64,7 +64,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-registration')
       .send(userData)
       .set('Accept', 'application/json')
-      .expect(400);
+      .expect(HttpStatus.BAD_REQUEST);
   });
 
   it('/user-registration (POST) with empty fields', () => {
@@ -78,7 +78,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-registration')
       .send(userData)
       .set('Accept', 'application/json')
-      .expect(400);
+      .expect(HttpStatus.BAD_REQUEST);
   });
 
   it('/user-registration (POST) with invalid email', () => {
@@ -92,7 +92,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-registration')
       .send(userData)
       .set('Accept', 'application/json')
-      .expect(400);
+      .expect(HttpStatus.BAD_REQUEST);
   });
 
   it('/user-registration (POST)', async () => {
@@ -100,7 +100,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-registration')
       .send(validUserData)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body.hashed_password).toBeUndefined();
   });
 
@@ -109,7 +109,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-registration')
       .send(validUserData)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/user-email-verifications/:id (POST)', async () => {
@@ -137,7 +137,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-auth/login')
       .send(userData)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(400);
+    expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
   });
 
   it('/user-auth/login (POST) with incorrect password', async () => {
@@ -149,7 +149,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-auth/login')
       .send(userData)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/user-auth/login (POST) with incorrect email', async () => {
@@ -161,7 +161,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-auth/login')
       .send(userData)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/user-auth/login (POST) with banned account', async () => {
@@ -174,7 +174,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-auth/login')
       .send(userData)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/user-auth/login (POST)', async () => {
@@ -186,7 +186,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-auth/login')
       .send(loginData)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     const userTokenResponse: UserTokenDto = response.body;
     loginToken = 'Bearer ' + userTokenResponse.login_token.value;
     expect(userTokenResponse.login_token.is_valid).toEqual(true);
@@ -204,7 +204,7 @@ describe('Authentication Flow (e2e)', () => {
       .post('/user-auth/login')
       .send(loginData)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     const userTokenResponse: UserTokenDto = response.body;
     adminLoginToken = 'Bearer ' + userTokenResponse.login_token.value;
     expect(userTokenResponse.login_token.is_valid).toEqual(true);
@@ -218,7 +218,7 @@ describe('Authentication Flow (e2e)', () => {
       .get('/admin/is-admin')
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
-    expect(response.status).toEqual(403);
+    expect(response.status).toEqual(HttpStatus.FORBIDDEN);
   });
 
   it('/admin/is-admin (GET) as admin user', async () => {
@@ -226,7 +226,7 @@ describe('Authentication Flow (e2e)', () => {
       .get('/admin/is-admin')
       .set('Accept', 'application/json')
       .set('Authorization', adminLoginToken);
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
   });
 
   it('/user-auth/logout (DELETE)', async () => {
@@ -234,7 +234,7 @@ describe('Authentication Flow (e2e)', () => {
       .delete('/user-auth/logout')
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
-    expect(response.status).toEqual(204);
+    expect(response.status).toEqual(HttpStatus.NO_CONTENT);
   });
 
   it('/user-auth/logout (DELETE) with invalid token', async () => {
@@ -242,7 +242,7 @@ describe('Authentication Flow (e2e)', () => {
       .delete('/user-auth/logout')
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
-    expect(response.status).toEqual(403);
+    expect(response.status).toEqual(HttpStatus.FORBIDDEN);
   });
 
   it('/user-auth/login (POST) repeatedly causes throttle', async () => {
@@ -260,7 +260,7 @@ describe('Authentication Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/user-auth/login')
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(429);
+    expect(response.status).toEqual(HttpStatus.TOO_MANY_REQUESTS);
   });
 });
 
@@ -288,7 +288,7 @@ describe('User Profile Flow (e2e)', () => {
       .get('/user-profiles')
       .set('Accept', 'application/json');
 
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.data).toBeDefined();
     expect(response.body.data).toEqual(
       expect.arrayContaining([
@@ -308,7 +308,7 @@ describe('User Profile Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
 
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.email).toEqual(validUserData.email);
     expect(response.body.hashed_password).toBeUndefined();
@@ -320,7 +320,7 @@ describe('User Profile Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
 
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.email).toBeUndefined();
     expect(response.body.hashed_password).toBeUndefined();
@@ -332,7 +332,7 @@ describe('User Profile Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
 
-    expect(response.status).toEqual(404);
+    expect(response.status).toEqual(HttpStatus.NOT_FOUND);
   });
 
   it('/user-profiles/update-details (POST) partial update', async () => {
@@ -345,7 +345,7 @@ describe('User Profile Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
 
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.first_name).toEqual(userDetails.first_name);
     expect(response.body.last_name).toEqual(validUserData.last_name);
@@ -364,7 +364,7 @@ describe('User Profile Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
 
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.first_name).toEqual(userDetails.first_name);
     expect(response.body.last_name).toEqual(userDetails.last_name);
@@ -383,7 +383,7 @@ describe('User Profile Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
 
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/user-profiles/update-password (POST)', async () => {
@@ -397,7 +397,7 @@ describe('User Profile Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
 
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.email).toEqual(validUserData.email);
     expect(response.body.hashed_password).toBeUndefined();
@@ -408,7 +408,7 @@ describe('User Profile Flow (e2e)', () => {
       .send(userDetails)
       .set('Accept', 'application/json')
       .set('Authorization', loginToken);
-    expect(responseAfterUpdate.status).toEqual(403);
+    expect(responseAfterUpdate.status).toEqual(HttpStatus.FORBIDDEN);
   });
 });
 
@@ -458,7 +458,7 @@ describe('Space Event Flow (e2e)', () => {
       .send(eventData)
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken);
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body.is_approved).toEqual(true);
     expect(response.body.organizer).toBeDefined();
     expect(response.body.organizer.id).toEqual(validMember.id);
@@ -485,7 +485,7 @@ describe('Space Event Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', userLoginToken)
       .send(eventData);
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body.is_approved).toEqual(false);
     expect(response.body.organizer).toBeDefined();
     expect(response.body.host).toBeUndefined();
@@ -496,7 +496,7 @@ describe('Space Event Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/space-events/need-host')
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -515,7 +515,7 @@ describe('Space Event Flow (e2e)', () => {
       )
       .set('Accept', 'application/json')
       .set('Authorization', userLoginToken);
-    expect(response.status).toEqual(403);
+    expect(response.status).toEqual(HttpStatus.FORBIDDEN);
   });
 
   it('/space-events/:id/host-as-member (POST)', async () => {
@@ -525,7 +525,7 @@ describe('Space Event Flow (e2e)', () => {
       )
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken);
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.is_approved).toEqual(true);
     expect(response.body.organizer).toBeDefined();
     expect(response.body.host).toBeDefined();
@@ -545,7 +545,7 @@ describe('Space Event Flow (e2e)', () => {
       .field(eventData)
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken);
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body.is_approved).toEqual(true);
     createdSpaceEvents.push(response.body);
   });
@@ -562,7 +562,7 @@ describe('Space Event Flow (e2e)', () => {
       .send(eventData)
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken);
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/space-events (POST) with conflict through event start date', async () => {
@@ -577,7 +577,7 @@ describe('Space Event Flow (e2e)', () => {
       .send(eventData)
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken);
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/space-events (POST) with conflict through event end date', async () => {
@@ -592,7 +592,7 @@ describe('Space Event Flow (e2e)', () => {
       .send(eventData)
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken);
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/space-events (POST) with conflict and over-exceed through event end date', async () => {
@@ -607,7 +607,7 @@ describe('Space Event Flow (e2e)', () => {
       .send(eventData)
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken);
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/space-events (POST) without conflict event start and end date', async () => {
@@ -622,7 +622,7 @@ describe('Space Event Flow (e2e)', () => {
       .send(eventData)
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken);
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body.is_approved).toEqual(true);
     createdSpaceEvents.push(response.body);
   });
@@ -631,7 +631,7 @@ describe('Space Event Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/space-events/latest')
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body).toHaveLength(createdSpaceEvents.length);
     createdSpaceEvents.forEach((createdSpaceEvent) => {
       expect(response.body).toEqual(
@@ -646,14 +646,14 @@ describe('Space Event Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/space-events/abcde-fac')
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(404);
+    expect(response.status).toEqual(HttpStatus.NOT_FOUND);
   });
 
   it('/space-events/:id (GET)', async () => {
     const response = await request(app.getHttpServer())
       .get('/space-events/' + createdSpaceEvents[0].id)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body).toEqual(
       expect.objectContaining({ id: createdSpaceEvents[0].id }),
     );
@@ -672,7 +672,7 @@ describe('Space Event Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken)
       .send(newSpaceEventDetails);
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body).toEqual(
       expect.objectContaining({ id: createdSpaceEvents[0].id }),
     );
@@ -692,7 +692,7 @@ describe('Space Event Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken)
       .send(newSpaceEventDetails);
-    expect(response.status).toEqual(403);
+    expect(response.status).toEqual(HttpStatus.FORBIDDEN);
   });
 
   it('/space-events/:id (POST) update with time', async () => {
@@ -709,7 +709,7 @@ describe('Space Event Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken)
       .send(newSpaceEventDetails);
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body).toEqual(
       expect.objectContaining({ id: createdSpaceEvents[0].id }),
     );
@@ -737,14 +737,14 @@ describe('Space Event Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', memberLoginToken)
       .send(newSpaceEventDetails);
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
   });
 
   it('/space-events/:id (GET) for ones with photo should have photo', async () => {
     const response = await request(app.getHttpServer())
       .get('/space-events/' + createdSpaceEvents[2].id)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body).toEqual(
       expect.objectContaining({ id: createdSpaceEvents[2].id }),
     );
@@ -756,7 +756,7 @@ describe('Space Event Flow (e2e)', () => {
     const photoResponse = await request(app.getHttpServer()).get(
       '/photos/' + photoFileId + '/view',
     );
-    expect(photoResponse.status).toEqual(200);
+    expect(photoResponse.status).toEqual(HttpStatus.OK);
   });
 });
 
@@ -792,7 +792,7 @@ describe('Admin User Management Flow (e2e)', () => {
       .post('/admin/user-management/' + validUser.id + '/add-membership')
       .set('Accept', 'application/json')
       .set('Authorization', adminLoginToken);
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.is_member).toEqual(true);
   });
@@ -802,7 +802,7 @@ describe('Admin User Management Flow (e2e)', () => {
       .post('/admin/user-management/' + validUser.id + '/remove-membership')
       .set('Accept', 'application/json')
       .set('Authorization', adminLoginToken);
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(validUser.id);
     expect(response.body.is_member).toEqual(false);
   });
@@ -851,7 +851,7 @@ describe('Inventory Management Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', adminLoginToken)
       .send(inventoryCategory);
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body.title).toEqual(inventoryCategory.title);
     expect(response.body.description).toEqual(inventoryCategory.description);
     expect(response.body.id).toBeDefined();
@@ -862,7 +862,7 @@ describe('Inventory Management Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/inventory-categories')
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.data).toBeDefined();
     expect(response.body.data).toEqual(
       expect.arrayContaining([
@@ -880,7 +880,7 @@ describe('Inventory Management Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/inventory-categories/' + createdCategoryId)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(createdCategoryId);
   });
 
@@ -888,7 +888,7 @@ describe('Inventory Management Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/inventory-categories/abcde-f')
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(404);
+    expect(response.status).toEqual(HttpStatus.NOT_FOUND);
   });
 
   it('/inventory-categories/:id (POST)', async () => {
@@ -901,7 +901,7 @@ describe('Inventory Management Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', adminLoginToken)
       .send(inventoryCategory);
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.title).toEqual(inventoryCategory.title);
     expect(response.body.description).toEqual(inventoryCategory.description);
   });
@@ -922,7 +922,7 @@ describe('Inventory Management Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', adminLoginToken)
       .send(inventoryItem);
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body.title).toEqual(inventoryItem.title);
     expect(response.body.description).toEqual(inventoryItem.description);
     expect(response.body.item_count).toEqual(inventoryItem.item_count);
@@ -956,7 +956,7 @@ describe('Inventory Management Flow (e2e)', () => {
       .field(inventoryItem)
       .set('Accept', 'application/json')
       .set('Authorization', adminLoginToken);
-    expect(response.status).toEqual(201);
+    expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body.title).toEqual(inventoryItem.title);
     expect(response.body.description).toEqual(inventoryItem.description);
     expect(response.body.item_count).toEqual(inventoryItem.item_count);
@@ -975,7 +975,7 @@ describe('Inventory Management Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/inventory-items')
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.data).toBeDefined();
     expect(response.body.data).toEqual(
       expect.arrayContaining([
@@ -993,7 +993,7 @@ describe('Inventory Management Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/inventory-items/' + createdInventoryId)
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(createdInventoryId);
     expect(response.body.created_by).toBeDefined();
     expect(response.body.created_by.id).toEqual(adminUser.id);
@@ -1010,7 +1010,7 @@ describe('Inventory Management Flow (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/inventory-items/abcde-f')
       .set('Accept', 'application/json');
-    expect(response.status).toEqual(404);
+    expect(response.status).toEqual(HttpStatus.NOT_FOUND);
   });
 
   it('/inventory-items/:id (POST)', async () => {
@@ -1024,7 +1024,7 @@ describe('Inventory Management Flow (e2e)', () => {
       .set('Accept', 'application/json')
       .set('Authorization', adminLoginToken)
       .send(inventoryItem);
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body.id).toEqual(createdInventoryId);
     expect(response.body.title).toEqual(inventoryItem.title);
     expect(response.body.description).toEqual(inventoryItem.description);
