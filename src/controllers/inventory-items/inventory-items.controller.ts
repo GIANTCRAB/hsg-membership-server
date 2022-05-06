@@ -19,6 +19,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetPageDto } from '../../shared-dto/get-page.dto';
 import { DataMapperHelper } from '../../shared-helpers/data-mapper.helper';
+import { UpdateInventoryItemDto } from './update-inventory-item-dto';
+import { InventoryItemEntity } from '../../entities/inventory-item.entity';
 
 @Controller('inventory-items')
 export class InventoryItemsController {
@@ -26,26 +28,6 @@ export class InventoryItemsController {
     private readonly inventoryItemsService: InventoryItemsService,
     private readonly loginTokensService: LoginTokensService,
   ) {}
-
-  @Get(':id')
-  @HttpCode(200)
-  getInventoryById(@Param() params): Observable<object> {
-    return this.inventoryItemsService
-      .getInventoryItemById(params.id)
-      .pipe(
-        map((inventoryItem) =>
-          DataMapperHelper.checkEntityAndReturnStatus(inventoryItem),
-        ),
-      );
-  }
-
-  @Get()
-  @HttpCode(200)
-  getInventoryCategories(@Body() getPageDto: GetPageDto): Observable<object> {
-    return this.inventoryItemsService.getInventoryItemsAndCount(
-      getPageDto.page,
-    );
-  }
 
   @ApiBearerAuth()
   @Post('with-photo')
@@ -68,6 +50,47 @@ export class InventoryItemsController {
           ),
         ),
       );
+  }
+
+  @Get(':id')
+  @HttpCode(200)
+  getInventoryById(@Param() params): Observable<object> {
+    return this.inventoryItemsService
+      .getInventoryItemById(params.id)
+      .pipe(
+        map((inventoryItem) =>
+          DataMapperHelper.checkEntityAndReturnStatus(inventoryItem),
+        ),
+      );
+  }
+
+  @ApiBearerAuth()
+  @Post(':id')
+  @UseGuards(AdminTokenGuard)
+  @HttpCode(200)
+  updateInventoryById(
+    @Param() params,
+    @Body() updateInventoryItemDto: UpdateInventoryItemDto,
+  ): Observable<object> {
+    return this.inventoryItemsService.getInventoryItemById(params.id).pipe(
+      map((inventoryItem: InventoryItemEntity) =>
+        DataMapperHelper.checkEntityAndReturnStatus(inventoryItem),
+      ),
+      switchMap((result: InventoryItemEntity) => {
+        return this.inventoryItemsService.updateInventoryItem(
+          updateInventoryItemDto,
+          result,
+        );
+      }),
+    );
+  }
+
+  @Get()
+  @HttpCode(200)
+  getInventoryCategories(@Body() getPageDto: GetPageDto): Observable<object> {
+    return this.inventoryItemsService.getInventoryItemsAndCount(
+      getPageDto.page,
+    );
   }
 
   @ApiBearerAuth()

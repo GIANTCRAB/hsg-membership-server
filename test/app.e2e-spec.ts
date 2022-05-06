@@ -10,6 +10,7 @@ import { randomStringGenerator } from '@nestjs/common/utils/random-string-genera
 import { CreateInventoryItemDto } from '../src/controllers/inventory-items/create-inventory-item-dto';
 import { randomInt } from 'crypto';
 import { CreateInventoryCategoryDto } from '../src/controllers/inventory-categories/create-inventory-category-dto';
+import { UpdateInventoryItemDto } from '../src/controllers/inventory-items/update-inventory-item-dto';
 
 const e2eHelper = new TestE2eHelpers();
 let app: INestApplication;
@@ -994,5 +995,28 @@ describe('Inventory Management Flow (e2e)', () => {
       .get('/inventory-items/abcde-f')
       .set('Accept', 'application/json');
     expect(response.status).toEqual(404);
+  });
+
+  it('/inventory-items/:id (POST)', async () => {
+    const inventoryItem: Partial<UpdateInventoryItemDto> = {
+      title: randomStringGenerator(),
+      description: randomStringGenerator() + ' ' + randomStringGenerator(),
+      item_count: randomInt(1, 100),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/inventory-items/' + createdInventoryId)
+      .set('Accept', 'application/json')
+      .set('Authorization', adminLoginToken)
+      .send(inventoryItem);
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(createdInventoryId);
+    expect(response.body.title).toEqual(inventoryItem.title);
+    expect(response.body.description).toEqual(inventoryItem.description);
+    expect(response.body.item_count).toEqual(inventoryItem.item_count);
+    expect(response.body.created_by).toBeDefined();
+    expect(response.body.owned_by).toBeDefined();
+    expect(response.body.maintained_by).toBeDefined();
+    expect(response.body.category).toBeDefined();
+    expect(response.body.photo).toBeNull();
   });
 });
