@@ -1,14 +1,18 @@
 import { IsISO8601, IsOptional } from 'class-validator';
 import { IsLongerThan } from '../../validators/is-longer-than';
 import { IsOneHourAfter } from '../../validators/is-one-hour-after';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateSpaceEventDto {
+  @ApiPropertyOptional()
   @IsOptional()
   title: string;
 
+  @ApiPropertyOptional()
   @IsOptional()
   description: string;
 
+  @ApiPropertyOptional()
   @IsOptional()
   @IsISO8601()
   @IsOneHourAfter({
@@ -16,6 +20,7 @@ export class UpdateSpaceEventDto {
   })
   event_start_date: string;
 
+  @ApiPropertyOptional()
   @IsOptional()
   @IsISO8601()
   @IsLongerThan('event_start_date', {
