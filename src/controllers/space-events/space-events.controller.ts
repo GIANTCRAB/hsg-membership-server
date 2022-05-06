@@ -20,7 +20,7 @@ import { LoginTokensService } from '../../services/login-tokens.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateSpaceEventDto } from './update-space-event-dto';
 import { MemberTokenGuard } from '../../guards/member-token-guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('space-events')
 export class SpaceEventsController {
@@ -42,6 +42,18 @@ export class SpaceEventsController {
   }
 
   @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        photo: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @HttpCode(201)
   @UseGuards(UserTokenGuard)
   @UseInterceptors(FileInterceptor('photo'))
