@@ -21,7 +21,14 @@ export class PhotosController {
           return res.sendFile(photo.filename, { root: 'photo-uploads' });
         }
         throw new HttpException(
-          'Photo with such an ID could not be found.',
+          {
+            status: HttpStatus.NOT_FOUND,
+            errors: [
+              {
+                id: 'Photo with such an ID could not be found.',
+              },
+            ],
+          },
           HttpStatus.NOT_FOUND,
         );
       }),
