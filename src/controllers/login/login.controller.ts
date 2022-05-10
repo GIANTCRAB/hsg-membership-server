@@ -31,7 +31,14 @@ export class LoginController {
       switchMap((loginUser) => {
         if (loginUser === null) {
           throw new HttpException(
-            'Incorrect login details.',
+            {
+              status: HttpStatus.UNPROCESSABLE_ENTITY,
+              errors: [
+                {
+                  email: 'Incorrect login details.',
+                },
+              ],
+            },
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
         } else {
