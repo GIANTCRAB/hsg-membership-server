@@ -19,7 +19,7 @@ import { UpdateUserPasswordDto } from './update-user-password-dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetPageDto } from '../../shared-dto/get-page.dto';
 
-@Controller('user-profiles')
+@Controller('api/user-profiles')
 export class UserProfilesController {
   constructor(
     private readonly loginTokensService: LoginTokensService,

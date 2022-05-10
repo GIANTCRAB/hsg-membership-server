@@ -22,7 +22,7 @@ import { DataMapperHelper } from '../../shared-helpers/data-mapper.helper';
 import { UpdateInventoryItemDto } from './update-inventory-item-dto';
 import { InventoryItemEntity } from '../../entities/inventory-item.entity';
 
-@Controller('inventory-items')
+@Controller('api/inventory-items')
 export class InventoryItemsController {
   constructor(
     private readonly inventoryItemsService: InventoryItemsService,

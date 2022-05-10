@@ -22,7 +22,7 @@ import { UpdateSpaceEventDto } from './update-space-event-dto';
 import { MemberTokenGuard } from '../../guards/member-token-guard';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
-@Controller('space-events')
+@Controller('api/space-events')
 export class SpaceEventsController {
   constructor(
     private spaceEventsService: SpaceEventsService,

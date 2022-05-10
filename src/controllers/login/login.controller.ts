@@ -17,7 +17,7 @@ import { UserTokenDto } from './user-token-dto';
 import { UserTokenGuard } from '../../guards/user-token-guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
-@Controller('user-auth')
+@Controller('api/user-auth')
 export class LoginController {
   constructor(
     private loginTokensService: LoginTokensService,

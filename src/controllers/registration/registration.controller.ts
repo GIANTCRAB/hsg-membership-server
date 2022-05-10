@@ -11,7 +11,7 @@ import { Observable, switchMap } from 'rxjs';
 import { UsersService } from '../../services/users.service';
 import { UserEmailVerificationsService } from '../../services/user-email-verifications.service';
 
-@Controller('user-registration')
+@Controller('api/user-registration')
 export class RegistrationController {
   constructor(
     private readonly usersService: UsersService,

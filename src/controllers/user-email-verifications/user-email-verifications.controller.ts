@@ -11,7 +11,7 @@ import { map, Observable } from 'rxjs';
 import { UserEmailVerificationsService } from '../../services/user-email-verifications.service';
 import { VerifyEmailDto } from './verify-email-dto';
 
-@Controller('user-email-verifications')
+@Controller('api/user-email-verifications')
 export class UserEmailVerificationsController {
   constructor(
     private readonly userEmailVerificationsService: UserEmailVerificationsService,

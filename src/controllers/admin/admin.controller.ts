@@ -12,7 +12,7 @@ import { AdminTokenGuard } from '../../guards/admin-token-guard';
 import { AdminService } from '../../services/admin.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
-@Controller('admin')
+@Controller('api/admin')
 export class AdminController {
   constructor(
     private adminService: AdminService,

@@ -27,9 +27,22 @@ import { InventoryItemsService } from './services/inventory-items.service';
 import { InventoryItemsController } from './controllers/inventory-items/inventory-items.controller';
 import { InventoryCategoriesService } from './services/inventory-categories.service';
 import { InventoryCategoriesController } from './controllers/inventory-categories/inventory-categories.controller';
+import { CsrfController } from './controllers/csrf/csrf.controller';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'node:path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(
+        __dirname,
+        '..',
+        '..',
+        'hsg-membership-client',
+        'dist',
+        'hsg-membership-client',
+      ),
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -46,6 +59,7 @@ import { InventoryCategoriesController } from './controllers/inventory-categorie
   controllers: [
     RegistrationController,
     LoginController,
+    CsrfController,
     SpaceEventsController,
     UserEmailVerificationsController,
     PhotosController,

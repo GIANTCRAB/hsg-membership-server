@@ -9,7 +9,7 @@ import {
 import { map, Observable } from 'rxjs';
 import { PhotoUploadsService } from '../../services/photo-uploads.service';
 
-@Controller('photos')
+@Controller('api/photos')
 export class PhotosController {
   constructor(private readonly photoUploadsService: PhotoUploadsService) {}
 

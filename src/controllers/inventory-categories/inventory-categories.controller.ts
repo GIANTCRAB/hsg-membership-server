@@ -16,7 +16,7 @@ import { GetPageDto } from '../../shared-dto/get-page.dto';
 import { DataMapperHelper } from '../../shared-helpers/data-mapper.helper';
 import { UpdateInventoryItemDto } from '../inventory-items/update-inventory-item-dto';
 
-@Controller('inventory-categories')
+@Controller('api/inventory-categories')
 export class InventoryCategoriesController {
   constructor(
     private readonly inventoryCategoriesService: InventoryCategoriesService,
