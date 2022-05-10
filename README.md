@@ -28,6 +28,8 @@ as `.env` for environment variables to work.
 
 ## Running
 
+You should build the production client first.
+
 ```
 npm run start
 ```
