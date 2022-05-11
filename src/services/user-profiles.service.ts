@@ -37,7 +37,7 @@ export class UserProfilesService {
   }
 
   public getUserProfileById(userId: string): Observable<UserEntity> {
-    return this.usersService.getUserById(userId);
+    return this.usersService.getPublicUserById(userId);
   }
 
   public getFullUserProfile(user: UserEntity): Observable<UserEntity> {

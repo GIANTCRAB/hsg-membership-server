@@ -51,6 +51,17 @@ export class UsersService {
     );
   }
 
+  public getPublicUserById(userId: string): Observable<UserEntity | undefined> {
+    return from(
+      this.connection.manager.findOne(UserEntity, {
+        where: {
+          id: userId,
+          is_public: true,
+        },
+      }),
+    );
+  }
+
   public getFullDisplayUserById(
     userId: string,
   ): Observable<UserEntity | undefined> {
@@ -68,6 +79,7 @@ export class UsersService {
           'is_verified',
           'is_member',
           'is_banned',
+          'is_public',
           'created_at',
           'updated_at',
         ],
