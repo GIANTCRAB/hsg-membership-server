@@ -47,9 +47,9 @@ export class SpaceEventsController {
   }
 
   @Get('need-host')
-  // Events that have not yet past, limit of 5
-  getAwaitingApproval(): Observable<object> {
-    return this.spaceEventsService.getLatestNeedApprovalEvents();
+  @HttpCode(200)
+  getAwaitingApproval(@Body() getPageDto: GetPageDto): Observable<object> {
+    return this.spaceEventsService.getNeedApprovalEvents(getPageDto.page);
   }
 
   @ApiBearerAuth()

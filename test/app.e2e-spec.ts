@@ -497,7 +497,8 @@ describe('Space Event Flow (e2e)', () => {
       .get('/api/space-events/need-host')
       .set('Accept', 'application/json');
     expect(response.status).toEqual(HttpStatus.OK);
-    expect(response.body).toEqual(
+    expect(response.body.data).toBeDefined();
+    expect(response.body.data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: spaceEventIdRequiringApproval,
@@ -506,6 +507,9 @@ describe('Space Event Flow (e2e)', () => {
         }),
       ]),
     );
+    expect(response.body.current_page).toEqual(1);
+    expect(response.body.last_page).toEqual(1);
+    expect(response.body.total_count).toEqual(1);
   });
 
   it('/api/space-events/:id/host-as-member (POST) as non-member', async () => {

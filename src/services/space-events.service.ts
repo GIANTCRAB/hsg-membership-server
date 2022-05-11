@@ -85,20 +85,29 @@ export class SpaceEventsService {
     );
   }
 
-  // Limit of 5
-  public getLatestNeedApprovalEvents(): Observable<SpaceEventEntity[]> {
+  public getNeedApprovalEvents(
+    page: number = 1,
+  ): Observable<ListDataDto<SpaceEventEntity>> {
+    const databaseIndex = page - 1;
+    const toTake = DataMapperHelper.defaultToTake;
+    const toSkip = toTake * databaseIndex;
     return from(
-      this.connection.manager.find(SpaceEventEntity, {
+      this.connection.manager.findAndCount(SpaceEventEntity, {
         where: {
           is_valid: true,
           is_approved: false,
           event_start_date: MoreThan(new Date().toISOString()),
         },
-        take: 5,
+        skip: toSkip,
+        take: toTake,
         order: {
           event_start_date: 'ASC',
         },
       }),
+    ).pipe(
+      map((result) =>
+        DataMapperHelper.mapArrayToListDataDto<SpaceEventEntity>(page, result),
+      ),
     );
   }
 
