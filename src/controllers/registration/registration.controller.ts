@@ -2,9 +2,8 @@ import {
   Body,
   Controller,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Post,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { RegisterUserDto } from './register-user-dto';
 import { Observable, switchMap } from 'rxjs';
@@ -26,10 +25,9 @@ export class RegistrationController {
     return this.usersService.getUserByEmail(registerUserDto.email).pipe(
       switchMap((result) => {
         if (result !== undefined) {
-          throw new HttpException(
+          throw new UnprocessableEntityException([
             'Account with this email address already exists.',
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
+          ]);
         } else {
           return this.usersService.registerUser(registerUserDto).pipe(
             switchMap((user) => {
@@ -40,10 +38,9 @@ export class RegistrationController {
                     if (emailSuccess) {
                       return this.usersService.getFullDisplayUserById(user.id);
                     } else {
-                      throw new HttpException(
+                      throw new UnprocessableEntityException([
                         'Account created successfully but email server is down. Please request for email verification again.',
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                      );
+                      ]);
                     }
                   }),
                 );

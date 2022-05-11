@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Param,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Res } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { PhotoUploadsService } from '../../services/photo-uploads.service';
 
@@ -20,17 +13,9 @@ export class PhotosController {
         if (photo) {
           return res.sendFile(photo.filename, { root: 'photo-uploads' });
         }
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            errors: [
-              {
-                id: 'Photo with such an ID could not be found.',
-              },
-            ],
-          },
-          HttpStatus.NOT_FOUND,
-        );
+        throw new NotFoundException([
+          'Photo with such an ID could not be found.',
+        ]);
       }),
     );
   }

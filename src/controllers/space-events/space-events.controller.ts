@@ -1,13 +1,15 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Headers,
   HttpCode,
-  HttpException,
-  HttpStatus,
+  NotFoundException,
   Param,
   Post,
+  UnprocessableEntityException,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -80,10 +82,9 @@ export class SpaceEventsController {
       .pipe(
         switchMap((result) => {
           if (result) {
-            throw new HttpException(
+            throw new UnprocessableEntityException([
               'Conflict with an existing space event.',
-              HttpStatus.UNPROCESSABLE_ENTITY,
-            );
+            ]);
           } else {
             return this.loginTokensService
               .getUserFromToken(authorizationToken)
@@ -108,10 +109,9 @@ export class SpaceEventsController {
         if (spaceEvent) {
           return spaceEvent;
         }
-        throw new HttpException(
+        throw new NotFoundException([
           'Space event with such an ID could not be found.',
-          HttpStatus.NOT_FOUND,
-        );
+        ]);
       }),
     );
   }
@@ -147,22 +147,19 @@ export class SpaceEventsController {
                         ),
                       );
                   }
-                  throw new HttpException(
+                  throw new UnprocessableEntityException([
                     'Conflict with an existing space event.',
-                    HttpStatus.UNPROCESSABLE_ENTITY,
-                  );
+                  ]);
                 }),
               );
           }
-          throw new HttpException(
+          throw new BadRequestException([
             'Space event is already approved and hosted by a member.',
-            HttpStatus.BAD_REQUEST,
-          );
+          ]);
         }
-        throw new HttpException(
+        throw new NotFoundException([
           'Space event with such an ID could not be found.',
-          HttpStatus.NOT_FOUND,
-        );
+        ]);
       }),
     );
   }
@@ -193,10 +190,9 @@ export class SpaceEventsController {
                     .pipe(
                       switchMap((result) => {
                         if (result) {
-                          throw new HttpException(
+                          throw new UnprocessableEntityException([
                             'Conflict with an existing space event.',
-                            HttpStatus.UNPROCESSABLE_ENTITY,
-                          );
+                          ]);
                         } else {
                           return this.spaceEventsService.updateSpaceEvent(
                             updateSpaceEventDto,
@@ -206,17 +202,15 @@ export class SpaceEventsController {
                       }),
                     );
                 }
-                throw new HttpException(
+                throw new ForbiddenException([
                   'You are not the organizer of the event.',
-                  HttpStatus.FORBIDDEN,
-                );
+                ]);
               }),
             );
         }
-        throw new HttpException(
+        throw new NotFoundException([
           'Space event with such an ID could not be found.',
-          HttpStatus.NOT_FOUND,
-        );
+        ]);
       }),
     );
   }
@@ -239,10 +233,9 @@ export class SpaceEventsController {
       .pipe(
         switchMap((result) => {
           if (result) {
-            throw new HttpException(
+            throw new UnprocessableEntityException([
               'Conflict with an existing space event.',
-              HttpStatus.UNPROCESSABLE_ENTITY,
-            );
+            ]);
           } else {
             return this.loginTokensService
               .getUserFromToken(authorizationToken)

@@ -4,9 +4,8 @@ import {
   Delete,
   Headers,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Post,
+  UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
 import { LoginTokensService } from '../../services/login-tokens.service';
@@ -30,17 +29,7 @@ export class LoginController {
     return this.usersService.loginUser(loginUserDto).pipe(
       switchMap((loginUser) => {
         if (loginUser === null) {
-          throw new HttpException(
-            {
-              status: HttpStatus.UNPROCESSABLE_ENTITY,
-              errors: [
-                {
-                  email: 'Incorrect login details.',
-                },
-              ],
-            },
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
+          throw new UnprocessableEntityException(['Incorrect login details.']);
         } else {
           return this.loginTokensService.createTokenForUser(loginUser).pipe(
             map((loginToken) => {

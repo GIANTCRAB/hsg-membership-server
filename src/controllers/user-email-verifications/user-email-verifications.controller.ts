@@ -2,10 +2,9 @@ import {
   Body,
   Controller,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { UserEmailVerificationsService } from '../../services/user-email-verifications.service';
@@ -30,10 +29,9 @@ export class UserEmailVerificationsController {
           if (result !== undefined) {
             return result;
           } else {
-            throw new HttpException(
+            throw new UnprocessableEntityException([
               'Invalid verification code.',
-              HttpStatus.UNPROCESSABLE_ENTITY,
-            );
+            ]);
           }
         }),
       );

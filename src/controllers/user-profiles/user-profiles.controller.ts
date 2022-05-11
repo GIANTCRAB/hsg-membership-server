@@ -4,10 +4,10 @@ import {
   Get,
   Headers,
   HttpCode,
-  HttpException,
-  HttpStatus,
+  NotFoundException,
   Param,
   Post,
+  UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
 import { map, Observable, switchMap } from 'rxjs';
@@ -29,7 +29,9 @@ export class UserProfilesController {
   @Get()
   @HttpCode(200)
   getUserProfiles(@Body() getPageDto: GetPageDto): Observable<object> {
-    return this.userProfilesService.getPublicUserProfilesAndCount(getPageDto.page);
+    return this.userProfilesService.getPublicUserProfilesAndCount(
+      getPageDto.page,
+    );
   }
 
   @ApiBearerAuth()
@@ -80,10 +82,9 @@ export class UserProfilesController {
               if (result !== undefined) {
                 return result;
               } else {
-                throw new HttpException(
+                throw new UnprocessableEntityException([
                   'Incorrect old password.',
-                  HttpStatus.UNPROCESSABLE_ENTITY,
-                );
+                ]);
               }
             }),
           );
@@ -100,10 +101,9 @@ export class UserProfilesController {
         if (user) {
           return user;
         }
-        throw new HttpException(
+        throw new NotFoundException([
           'User with such an ID could not be found.',
-          HttpStatus.NOT_FOUND,
-        );
+        ]);
       }),
     );
   }
