@@ -18,7 +18,7 @@ export class UserProfilesService {
     private readonly loginTokensService: LoginTokensService,
   ) {}
 
-  public getUserProfilesAndCount(
+  public getPublicUserProfilesAndCount(
     page: number = 1,
   ): Observable<ListDataDto<UserEntity>> {
     const databaseIndex = page - 1;
@@ -28,6 +28,9 @@ export class UserProfilesService {
       this.connection.manager.findAndCount(UserEntity, {
         skip: toSkip,
         take: toTake,
+        where: {
+          is_public: true,
+        },
       }),
     ).pipe(
       map((result) =>

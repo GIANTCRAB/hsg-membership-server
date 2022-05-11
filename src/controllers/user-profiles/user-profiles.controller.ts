@@ -29,7 +29,7 @@ export class UserProfilesController {
   @Get()
   @HttpCode(200)
   getUserProfiles(@Body() getPageDto: GetPageDto): Observable<object> {
-    return this.userProfilesService.getUserProfilesAndCount(getPageDto.page);
+    return this.userProfilesService.getPublicUserProfilesAndCount(getPageDto.page);
   }
 
   @ApiBearerAuth()
