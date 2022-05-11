@@ -21,6 +21,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateSpaceEventDto } from './update-space-event-dto';
 import { MemberTokenGuard } from '../../guards/member-token-guard';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { GetPageDto } from '../../shared-dto/get-page.dto';
 
 @Controller('api/space-events')
 export class SpaceEventsController {
@@ -33,6 +34,14 @@ export class SpaceEventsController {
   // Events that have not yet past, limit of 5
   getRecentUpcoming(): Observable<object> {
     return this.spaceEventsService.getLatestValidEvents();
+  }
+
+  @Get('upcoming')
+  @HttpCode(200)
+  getPaginatedUpcoming(@Body() getPageDto: GetPageDto): Observable<object> {
+    return this.spaceEventsService.getValidUpcomingEventsAndCount(
+      getPageDto.page,
+    );
   }
 
   @Get('need-host')
@@ -248,5 +257,11 @@ export class SpaceEventsController {
           }
         }),
       );
+  }
+
+  @Get()
+  @HttpCode(200)
+  getPaginated(@Body() getPageDto: GetPageDto): Observable<object> {
+    return this.spaceEventsService.getValidEventsAndCount(getPageDto.page);
   }
 }

@@ -646,6 +646,42 @@ describe('Space Event Flow (e2e)', () => {
     });
   });
 
+  it('/api/space-events/upcoming (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/space-events/upcoming')
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(HttpStatus.OK);
+    expect(response.body.data).toBeDefined();
+    createdSpaceEvents.forEach((createdSpaceEvent) => {
+      expect(response.body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: createdSpaceEvent.id }),
+        ]),
+      );
+    });
+    expect(response.body.current_page).toEqual(1);
+    expect(response.body.last_page).toEqual(1);
+    expect(response.body.total_count).toEqual(createdSpaceEvents.length);
+  });
+
+  it('/api/space-events (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/space-events')
+      .set('Accept', 'application/json');
+    expect(response.status).toEqual(HttpStatus.OK);
+    expect(response.body.data).toBeDefined();
+    createdSpaceEvents.forEach((createdSpaceEvent) => {
+      expect(response.body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: createdSpaceEvent.id }),
+        ]),
+      );
+    });
+    expect(response.body.current_page).toEqual(1);
+    expect(response.body.last_page).toEqual(1);
+    expect(response.body.total_count).toEqual(createdSpaceEvents.length);
+  });
+
   it('/api/space-events/:id (GET) with invalid ID', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/space-events/abcde-fac')

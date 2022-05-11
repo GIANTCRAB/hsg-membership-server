@@ -8,6 +8,8 @@ import moment from 'moment';
 import { UpdateSpaceEventDto } from '../controllers/space-events/update-space-event-dto';
 import { UpdateSpaceEventDtoToEntity } from '../controllers/space-events/update-space-event-dto-to-entity';
 import { PhotoUploadsService } from './photo-uploads.service';
+import { ListDataDto } from '../shared-dto/list-data.dto';
+import { DataMapperHelper } from '../shared-helpers/data-mapper.helper';
 
 @Injectable()
 export class SpaceEventsService {
@@ -30,6 +32,56 @@ export class SpaceEventsService {
           event_start_date: 'ASC',
         },
       }),
+    );
+  }
+
+  public getValidUpcomingEventsAndCount(
+    page: number = 1,
+  ): Observable<ListDataDto<SpaceEventEntity>> {
+    const databaseIndex = page - 1;
+    const toTake = DataMapperHelper.defaultToTake;
+    const toSkip = toTake * databaseIndex;
+    return from(
+      this.connection.manager.findAndCount(SpaceEventEntity, {
+        where: {
+          is_valid: true,
+          is_approved: true,
+          event_start_date: MoreThan(new Date().toISOString()),
+        },
+        skip: toSkip,
+        take: toTake,
+        order: {
+          event_start_date: 'ASC',
+        },
+      }),
+    ).pipe(
+      map((result) =>
+        DataMapperHelper.mapArrayToListDataDto<SpaceEventEntity>(page, result),
+      ),
+    );
+  }
+
+  public getValidEventsAndCount(
+    page: number = 1,
+  ): Observable<ListDataDto<SpaceEventEntity>> {
+    const databaseIndex = page - 1;
+    const toTake = DataMapperHelper.defaultToTake;
+    const toSkip = toTake * databaseIndex;
+    return from(
+      this.connection.manager.findAndCount(SpaceEventEntity, {
+        where: {
+          is_valid: true,
+        },
+        skip: toSkip,
+        take: toTake,
+        order: {
+          event_start_date: 'ASC',
+        },
+      }),
+    ).pipe(
+      map((result) =>
+        DataMapperHelper.mapArrayToListDataDto<SpaceEventEntity>(page, result),
+      ),
     );
   }
 
