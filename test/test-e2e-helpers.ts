@@ -20,7 +20,9 @@ export class TestE2eHelpers {
     }).compile();
 
     this.app = this.moduleFixture.createNestApplication();
-    this.app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    this.app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await this.app.init();
     return this.app;
   }

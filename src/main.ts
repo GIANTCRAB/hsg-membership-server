@@ -10,7 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   app.use(cookieParser());
   app.use(csurf({ cookie: true }));
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   dotenv.config();
 
   const config = new DocumentBuilder()

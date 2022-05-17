@@ -353,6 +353,24 @@ describe('User Profile Flow (e2e)', () => {
     expect(response.body.hashed_password).toBeUndefined();
   });
 
+  it('/api/user-profiles/update-details (POST) partial update with non-DTO details', async () => {
+    const userDetails = {
+      email: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/user-profiles/update-details')
+      .send(userDetails)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(HttpStatus.OK);
+    expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.first_name).toBeDefined();
+    expect(response.body.last_name).toEqual(validUserData.last_name);
+    expect(response.body.email).toEqual(validUserData.email);
+    expect(response.body.hashed_password).toBeUndefined();
+  });
+
   it('/api/user-profiles/update-details (POST) public update', async () => {
     const userDetails = {
       is_public: false,
