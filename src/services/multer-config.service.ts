@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import {
   MulterModuleOptions,
   MulterOptionsFactory,
@@ -16,17 +16,7 @@ export class MulterConfigService implements MulterOptionsFactory {
       fileFilter: (request, file, callback) => {
         if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
           return callback(
-            new HttpException(
-              {
-                status: HttpStatus.UNPROCESSABLE_ENTITY,
-                errors: [
-                  {
-                    file: 'Not a valid file type.',
-                  },
-                ],
-              },
-              HttpStatus.UNPROCESSABLE_ENTITY,
-            ),
+            new UnprocessableEntityException(['Not a valid file type.']),
             false,
           );
         }
