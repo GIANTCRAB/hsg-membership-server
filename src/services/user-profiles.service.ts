@@ -53,10 +53,7 @@ export class UserProfilesService {
   ): Observable<UserEntity> {
     const newUserContent: Partial<UserEntity> = {};
     for (let updateUserProfileDtoKey in updateUserProfileDto) {
-      if (
-        updateUserProfileDto[updateUserProfileDtoKey] &&
-        updateUserProfileDto[updateUserProfileDtoKey] !== undefined
-      ) {
+      if (updateUserProfileDto[updateUserProfileDtoKey] !== undefined) {
         newUserContent[updateUserProfileDtoKey] =
           updateUserProfileDto[updateUserProfileDtoKey];
       }

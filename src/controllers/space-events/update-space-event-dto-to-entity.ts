@@ -8,10 +8,7 @@ export class UpdateSpaceEventDtoToEntity {
   ): Partial<SpaceEventEntity> {
     const newSpaceEventDetails: Partial<SpaceEventEntity> = {};
     for (const updateSpaceEventDtoKey in updateSpaceEventDto) {
-      if (
-        updateSpaceEventDto[updateSpaceEventDtoKey] &&
-        updateSpaceEventDto[updateSpaceEventDtoKey] !== undefined
-      ) {
+      if (updateSpaceEventDto[updateSpaceEventDtoKey] !== undefined) {
         if (
           updateSpaceEventDtoKey === 'event_start_date' ||
           updateSpaceEventDtoKey === 'event_end_date'
