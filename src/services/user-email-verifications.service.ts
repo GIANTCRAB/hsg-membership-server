@@ -7,12 +7,14 @@ import { UserEmailVerificationEntity } from '../entities/user-email-verification
 import { EmailService } from './email.service';
 import crypto from 'crypto';
 import moment from 'moment';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserEmailVerificationsService {
   constructor(
     private readonly connection: Connection,
     private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   public getUserEmailVerificationByEmail(
@@ -71,9 +73,15 @@ export class UserEmailVerificationsService {
   public sendEmailVerification(
     userEmailVerification: UserEmailVerificationEntity,
   ) {
+    const registrationUrl =
+      this.configService.get<string>('APP_URL') +
+      '/registration/' +
+      userEmailVerification.id;
     const emailContent = `Hey there ${userEmailVerification.user.first_name}, 
         \n\n
         Thank you for signing up with Hackerspace SG. This is your verification code: ${userEmailVerification.code}
+        \n\n
+        Confirmation url: ${registrationUrl}
         \n\n
         Best Regards,\n
         Hackerspace SG
