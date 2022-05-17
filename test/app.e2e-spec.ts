@@ -353,6 +353,32 @@ describe('User Profile Flow (e2e)', () => {
     expect(response.body.hashed_password).toBeUndefined();
   });
 
+  it('/api/user-profiles/update-details (POST) public update', async () => {
+    const userDetails = {
+      is_public: false,
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/user-profiles/update-details')
+      .send(userDetails)
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(response.status).toEqual(HttpStatus.OK);
+    expect(response.body.id).toEqual(validUser.id);
+    expect(response.body.is_public).toEqual(userDetails.is_public);
+    expect(response.body.first_name).toBeDefined();
+    expect(response.body.last_name).toEqual(validUserData.last_name);
+    expect(response.body.email).toEqual(validUserData.email);
+    expect(response.body.hashed_password).toBeUndefined();
+
+    const profileResponse = await request(app.getHttpServer())
+      .get('/api/user-profiles/' + validUser.id + '/view')
+      .set('Accept', 'application/json')
+      .set('Authorization', loginToken);
+
+    expect(profileResponse.status).toEqual(HttpStatus.NOT_FOUND);
+  });
+
   it('/api/user-profiles/update-details (POST)', async () => {
     const userDetails = {
       first_name: randomStringGenerator(),
