@@ -8,6 +8,7 @@ import { UserEmailVerificationEntity } from '../entities/user-email-verification
 import { PhotoEntity } from '../entities/photo.entity';
 import { InventoryItemEntity } from '../entities/inventory-item.entity';
 import { InventoryCategoryEntity } from '../entities/inventory-category.entity';
+import { PasswordResetEntity } from '../entities/password-reset.entity';
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -25,6 +26,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
         UserEntity,
         UserEmailVerificationEntity,
         LoginTokenEntity,
+        PasswordResetEntity,
         PhotoEntity,
         SpaceEventEntity,
         InventoryCategoryEntity,

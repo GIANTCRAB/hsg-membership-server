@@ -30,6 +30,7 @@ import { InventoryCategoriesController } from './controllers/inventory-categorie
 import { CsrfController } from './controllers/csrf/csrf.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
+import { PasswordResetsService } from './services/password-resets.service';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { join } from 'node:path';
   providers: [
     UsersService,
     LoginTokensService,
+    PasswordResetsService,
     SpaceEventsService,
     EmailService,
     UserEmailVerificationsService,

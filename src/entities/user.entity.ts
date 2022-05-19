@@ -14,6 +14,7 @@ import { IsEmail } from 'class-validator';
 import { UserEmailVerificationEntity } from './user-email-verification.entity';
 import { PhotoEntity } from './photo.entity';
 import { InventoryItemEntity } from './inventory-item.entity';
+import { PasswordResetEntity } from './password-reset.entity';
 
 @Entity({
   name: 'users',
@@ -70,6 +71,9 @@ export class UserEntity {
 
   @OneToMany(() => LoginTokenEntity, (login_token) => login_token.user)
   login_tokens: LoginTokenEntity[];
+
+  @OneToMany(() => PasswordResetEntity, (password_reset) => password_reset.user)
+  password_resets: PasswordResetEntity[];
 
   @OneToMany(() => SpaceEventEntity, (space_event) => space_event.organizer)
   organized_space_events: SpaceEventEntity[];
