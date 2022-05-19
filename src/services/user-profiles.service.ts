@@ -4,7 +4,6 @@ import { first, from, map, Observable, of, switchMap } from 'rxjs';
 import { UserEntity } from '../entities/user.entity';
 import { UpdateUserProfileDto } from '../controllers/user-profiles/update-user-profile-dto';
 import { UpdateUserPasswordDto } from '../controllers/user-profiles/update-user-password-dto';
-import argon2 from 'argon2';
 import { UsersService } from './users.service';
 import { LoginTokensService } from './login-tokens.service';
 import { ListDataDto } from '../shared-dto/list-data.dto';
@@ -71,52 +70,37 @@ export class UserProfilesService {
     updateUserPasswordDto: UpdateUserPasswordDto,
     user: UserEntity,
   ): Observable<UserEntity> {
-    return from(
-      this.connection.manager.findOne(UserEntity, {
-        where: {
-          id: user.id,
-        },
-        select: ['id', 'hashed_password'],
-      }),
-    ).pipe(
+    return this.usersService.getUserByIdAndSelectPassword(user.id).pipe(
       switchMap((user) => {
-        return from(
-          argon2.verify(
-            user.hashed_password,
+        return this.usersService
+          .verifyUserPasswordUsingEntity(
+            user,
             updateUserPasswordDto.old_password,
-          ),
-        ).pipe(
-          first(),
-          switchMap((isValid) => {
-            if (isValid) {
-              return this.usersService
-                .hashPassword(updateUserPasswordDto.new_password)
-                .pipe(
-                  switchMap((hashedPassword) => {
-                    return from(
-                      this.connection.transaction(
-                        async (transactionalEntityManager) => {
-                          await transactionalEntityManager.update(
-                            UserEntity,
-                            { id: user.id },
-                            {
-                              hashed_password: hashedPassword,
-                            },
-                          );
-                          await this.loginTokensService.invalidateAllLoginTokensOfUserUsingTransaction(
-                            transactionalEntityManager,
-                            user,
-                          );
-                        },
-                      ),
-                    ).pipe(switchMap(() => this.getFullUserProfile(user)));
-                  }),
-                );
-            } else {
-              return of(undefined);
-            }
-          }),
-        );
+          )
+          .pipe(
+            first(),
+            switchMap((isValid) => {
+              if (isValid) {
+                return from(
+                  this.connection.transaction(
+                    async (transactionalEntityManager) => {
+                      await this.usersService.setUserPasswordUsingTransaction(
+                        transactionalEntityManager,
+                        user,
+                        updateUserPasswordDto.new_password,
+                      );
+                      await this.loginTokensService.invalidateAllLoginTokensOfUserUsingTransaction(
+                        transactionalEntityManager,
+                        user,
+                      );
+                    },
+                  ),
+                ).pipe(switchMap(() => this.getFullUserProfile(user)));
+              } else {
+                return of(undefined);
+              }
+            }),
+          );
       }),
     );
   }

@@ -26,7 +26,7 @@ export class LoginController {
   @Post('login')
   @HttpCode(201)
   postUserLogin(@Body() loginUserDto: LoginUserDto): Observable<object> {
-    return this.usersService.loginUser(loginUserDto).pipe(
+    return this.usersService.getUserByEmailAndPassword(loginUserDto).pipe(
       switchMap((loginUser) => {
         if (loginUser === null) {
           throw new UnprocessableEntityException(['Incorrect login details.']);

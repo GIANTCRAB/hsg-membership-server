@@ -1,8 +1,17 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { map, Observable, switchMap, timer } from 'rxjs';
 import { PasswordResetsService } from '../../services/password-resets.service';
 import { PasswordResetRequestDto } from './password-reset-request-dto';
 import { UsersService } from '../../services/users.service';
+import { PasswordResetConfirmationDto } from './password-reset-confirmation-dto';
 
 @Controller('api/password-resets')
 export class PasswordResetsController {
@@ -12,10 +21,10 @@ export class PasswordResetsController {
   ) {}
 
   @Post()
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.CREATED)
   requestPasswordReset(
     @Body() passwordResetRequestDto: PasswordResetRequestDto,
-  ): Observable<undefined> {
+  ): Observable<object> {
     return this.usersService.getUserByEmail(passwordResetRequestDto.email).pipe(
       switchMap((result) => {
         if (result === undefined) {
@@ -26,10 +35,39 @@ export class PasswordResetsController {
           );
           return timer(randomTime);
         } else {
-          return this.passwordResetsService.resetUserPassword(result);
+          return this.passwordResetsService.requestUserPasswordReset(result);
         }
       }),
-      map(() => undefined),
+      map((createdResult) =>
+        this.passwordResetsService.createPasswordResetResponseDto(
+          createdResult ? createdResult : undefined,
+          passwordResetRequestDto,
+        ),
+      ),
     );
+  }
+
+  @Post(':id')
+  @HttpCode(HttpStatus.OK)
+  confirmPasswordReset(
+    @Param() params,
+    @Body() passwordResetConfirmationDto: PasswordResetConfirmationDto,
+  ): Observable<object> {
+    return this.passwordResetsService
+      .getPasswordResetByIdAndDto(params.id, passwordResetConfirmationDto)
+      .pipe(
+        switchMap((result) => {
+          if (result !== undefined) {
+            return this.passwordResetsService.confirmPasswordReset(
+              result,
+              passwordResetConfirmationDto,
+            );
+          }
+
+          throw new NotFoundException([
+            'Password reset with such an id or email or code could not be found.',
+          ]);
+        }),
+      );
   }
 }

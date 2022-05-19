@@ -12,6 +12,8 @@ import { randomInt } from 'crypto';
 import { CreateInventoryCategoryDto } from '../src/controllers/inventory-categories/create-inventory-category-dto';
 import { UpdateInventoryItemDto } from '../src/controllers/inventory-items/update-inventory-item-dto';
 import { UpdateInventoryCategoryDto } from '../src/controllers/inventory-categories/update-inventory-category-dto';
+import { PasswordResetResponseDto } from '../src/controllers/password-resets/password-reset-response-dto';
+import { PasswordResetConfirmationDto } from '../src/controllers/password-resets/password-reset-confirmation-dto';
 
 const e2eHelper = new TestE2eHelpers();
 let app: INestApplication;
@@ -277,11 +279,14 @@ describe('Password Reset Flow (e2e)', () => {
     last_name: 'surname',
     password: 'password123',
   };
+  let passwordResetResponseDto: PasswordResetResponseDto;
+  let invalidPasswordResetResponseDto: PasswordResetResponseDto;
 
   let validUser: UserEntity;
 
   beforeAll(async () => {
     await e2eHelper.resetDatabase();
+    e2eHelper.resetMiddlewares();
     validUser = await e2eHelper.createValidUser(validUserData);
     return app;
   });
@@ -295,7 +300,9 @@ describe('Password Reset Flow (e2e)', () => {
       .send(userDetails)
       .set('Accept', 'application/json');
 
-    expect(response.status).toEqual(HttpStatus.NO_CONTENT);
+    expect(response.status).toEqual(HttpStatus.CREATED);
+    expect(response.body.id).toBeDefined();
+    invalidPasswordResetResponseDto = response.body;
   });
 
   it('/api/password-resets (POST) with valid email', async () => {
@@ -307,7 +314,57 @@ describe('Password Reset Flow (e2e)', () => {
       .send(userDetails)
       .set('Accept', 'application/json');
 
-    expect(response.status).toEqual(HttpStatus.NO_CONTENT);
+    expect(response.status).toEqual(HttpStatus.CREATED);
+    expect(response.body.id).toBeDefined();
+    passwordResetResponseDto = response.body;
+  });
+
+  it('/api/password-resets/:id (POST) with invalid ID', async () => {
+    const passwordResetEntity = await e2eHelper.getPasswordResetEntity(
+      passwordResetResponseDto.id,
+    );
+    const passwordResetConfirmation: PasswordResetConfirmationDto = {
+      email: passwordResetEntity.email,
+      code: passwordResetEntity.code,
+      new_password: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/password-resets/' + randomStringGenerator())
+      .send(passwordResetConfirmation)
+      .set('Accept', 'application/json');
+
+    expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+  });
+
+  it('/api/password-resets/:id (POST)', async () => {
+    const passwordResetEntity = await e2eHelper.getPasswordResetEntity(
+      passwordResetResponseDto.id,
+    );
+    const passwordResetConfirmation: PasswordResetConfirmationDto = {
+      email: passwordResetEntity.email,
+      code: passwordResetEntity.code,
+      new_password: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/password-resets/' + passwordResetEntity.id)
+      .send(passwordResetConfirmation)
+      .set('Accept', 'application/json');
+
+    expect(response.status).toEqual(HttpStatus.OK);
+  });
+
+  it('/api/password-resets/:id (POST) with invalid record', async () => {
+    const passwordResetConfirmation: PasswordResetConfirmationDto = {
+      email: invalidPasswordResetResponseDto.email,
+      code: randomStringGenerator(),
+      new_password: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/password-resets/' + invalidPasswordResetResponseDto.id)
+      .send(passwordResetConfirmation)
+      .set('Accept', 'application/json');
+
+    expect(response.status).toEqual(HttpStatus.NOT_FOUND);
   });
 });
 

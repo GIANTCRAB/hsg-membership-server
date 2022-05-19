@@ -9,6 +9,8 @@ import { UserEmailVerificationsService } from '../src/services/user-email-verifi
 import { UserTokenDto } from '../src/controllers/login/user-token-dto';
 import { UserEntity } from '../src/entities/user.entity';
 import { LoginTokensService } from '../src/services/login-tokens.service';
+import { ThrottleStorageService } from '../src/services/throttle-storage-service';
+import { PasswordResetsService } from '../src/services/password-resets.service';
 
 export class TestE2eHelpers {
   moduleFixture: TestingModule;
@@ -35,6 +37,13 @@ export class TestE2eHelpers {
     await getConnection().synchronize(true);
   }
 
+  public resetMiddlewares() {
+    const throttleStorageService = this.moduleFixture.get(
+      ThrottleStorageService,
+    );
+    throttleStorageService.resetAllRecords();
+  }
+
   public async getEmailVerificationToken(email: string) {
     const userEmailVerificationsService = this.moduleFixture.get(
       UserEmailVerificationsService,
@@ -42,6 +51,11 @@ export class TestE2eHelpers {
     return firstValueFrom(
       userEmailVerificationsService.getUserEmailVerificationByEmail(email),
     );
+  }
+
+  public async getPasswordResetEntity(id: string) {
+    const passwordResetsService = this.moduleFixture.get(PasswordResetsService);
+    return firstValueFrom(passwordResetsService.getPasswordResetById(id));
   }
 
   public async createValidUser(userData: RegisterUserDto) {

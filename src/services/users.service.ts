@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RegisterUserDto } from '../controllers/registration/register-user-dto';
 import { UserEntity } from '../entities/user.entity';
-import { Connection } from 'typeorm';
+import { Connection, EntityManager, UpdateResult } from 'typeorm';
 import { first, from, Observable, of, switchMap } from 'rxjs';
 import argon2 from 'argon2';
 import { LoginUserDto } from '../controllers/login/login-user-dto';
@@ -30,15 +30,17 @@ export class UsersService {
     return from(this.connection.manager.save(new UserEntity(userData)));
   }
 
+  public hashPasswordUsingPromise(givenPassword: string): Promise<string> {
+    return argon2.hash(givenPassword, {
+      type: argon2.argon2id,
+      memoryCost: 15360,
+      parallelism: 1,
+      timeCost: 2,
+    });
+  }
+
   public hashPassword(givenPassword: string): Observable<string> {
-    return from(
-      argon2.hash(givenPassword, {
-        type: argon2.argon2id,
-        memoryCost: 15360,
-        parallelism: 1,
-        timeCost: 2,
-      }),
-    );
+    return from(this.hashPasswordUsingPromise(givenPassword));
   }
 
   public getUserById(userId: string): Observable<UserEntity | undefined> {
@@ -47,6 +49,34 @@ export class UsersService {
         where: {
           id: userId,
         },
+      }),
+    );
+  }
+
+  public getUserByIdAndSelectPassword(
+    userId: string,
+  ): Observable<UserEntity | undefined> {
+    return from(
+      this.connection.manager.findOne(UserEntity, {
+        where: {
+          id: userId,
+        },
+        select: ['id', 'hashed_password'],
+      }),
+    );
+  }
+
+  public getValidUserByEmailAndSelectPassword(
+    userEmail: string,
+  ): Observable<UserEntity | undefined> {
+    return from(
+      this.connection.manager.findOne(UserEntity, {
+        where: {
+          email: userEmail,
+          is_banned: false,
+          is_verified: true,
+        },
+        select: ['id', 'email', 'hashed_password'],
       }),
     );
   }
@@ -118,30 +148,40 @@ export class UsersService {
     );
   }
 
-  public loginUser(loginUserDto: LoginUserDto): Observable<UserEntity | null> {
-    return from(
-      this.connection.manager.findOne(UserEntity, {
-        where: {
-          email: loginUserDto.email,
-          is_banned: false,
-          is_verified: true,
-        },
-        select: ['id', 'email', 'hashed_password'],
-      }),
-    ).pipe(
+  public async setUserPasswordUsingTransaction(
+    transactionalEntityManager: EntityManager,
+    user: UserEntity,
+    newPassword: string,
+  ): Promise<UpdateResult> {
+    return transactionalEntityManager.update(
+      UserEntity,
+      { id: user.id },
+      { hashed_password: await this.hashPasswordUsingPromise(newPassword) },
+    );
+  }
+
+  public verifyUserPasswordUsingEntity(
+    user: UserEntity,
+    password: string,
+  ): Observable<boolean> {
+    return from(argon2.verify(user.hashed_password, password));
+  }
+
+  public getUserByEmailAndPassword(
+    loginUserDto: LoginUserDto,
+  ): Observable<UserEntity | null> {
+    return this.getValidUserByEmailAndSelectPassword(loginUserDto.email).pipe(
       first(),
       switchMap((user) => {
         if (user !== undefined) {
-          return from(
-            argon2.verify(user.hashed_password, loginUserDto.password),
+          return this.verifyUserPasswordUsingEntity(
+            user,
+            loginUserDto.password,
           ).pipe(
             first(),
-            switchMap((isValid) => {
-              if (isValid) {
-                return this.getFullDisplayUserById(user.id);
-              }
-              return of(null);
-            }),
+            switchMap((isValid) =>
+              isValid ? this.getFullDisplayUserById(user.id) : of(null),
+            ),
           );
         }
         return of(null);
