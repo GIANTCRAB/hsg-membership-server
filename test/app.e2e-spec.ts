@@ -337,20 +337,53 @@ describe('Password Reset Flow (e2e)', () => {
   });
 
   it('/api/password-resets/:id (POST)', async () => {
+    const oldLoginData = {
+      email: validUserData.email,
+      password: validUserData.password,
+    };
+    const newLoginData = {
+      email: validUserData.email,
+      password: randomStringGenerator(),
+    };
+    const oldLoginResponseBeforeReset = await request(app.getHttpServer())
+      .post('/api/user-auth/login')
+      .send(oldLoginData)
+      .set('Accept', 'application/json');
+    expect(oldLoginResponseBeforeReset.status).toEqual(HttpStatus.CREATED);
+    const newLoginResponseBeforeReset = await request(app.getHttpServer())
+      .post('/api/user-auth/login')
+      .send(newLoginData)
+      .set('Accept', 'application/json');
+    expect(newLoginResponseBeforeReset.status).toEqual(
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
+
     const passwordResetEntity = await e2eHelper.getPasswordResetEntity(
       passwordResetResponseDto.id,
     );
     const passwordResetConfirmation: PasswordResetConfirmationDto = {
       email: passwordResetEntity.email,
       code: passwordResetEntity.code,
-      new_password: randomStringGenerator(),
+      new_password: newLoginData.password,
     };
     const response = await request(app.getHttpServer())
       .post('/api/password-resets/' + passwordResetEntity.id)
       .send(passwordResetConfirmation)
       .set('Accept', 'application/json');
-
     expect(response.status).toEqual(HttpStatus.OK);
+
+    const oldLoginResponseAfterReset = await request(app.getHttpServer())
+      .post('/api/user-auth/login')
+      .send(oldLoginData)
+      .set('Accept', 'application/json');
+    expect(oldLoginResponseAfterReset.status).toEqual(
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
+    const newLoginResponseAfterReset = await request(app.getHttpServer())
+      .post('/api/user-auth/login')
+      .send(newLoginData)
+      .set('Accept', 'application/json');
+    expect(newLoginResponseAfterReset.status).toEqual(HttpStatus.CREATED);
   });
 
   it('/api/password-resets/:id (POST) with invalid record', async () => {
