@@ -6,8 +6,9 @@ import { BehaviorSubject, first, map, Observable } from 'rxjs';
 export class ThrottleStorageService
   implements ThrottleStorageInterface, OnApplicationShutdown
 {
-  private _storedTiming: BehaviorSubject<Record<string, NodeJS.Timeout[]>> =
-    new BehaviorSubject<Record<string, NodeJS.Timeout[]>>({});
+  private readonly _storedTiming: BehaviorSubject<
+    Record<string, NodeJS.Timeout[]>
+  > = new BehaviorSubject<Record<string, NodeJS.Timeout[]>>({});
 
   addRecord(key: string, secondsTtl: number): Observable<void> {
     return this._storedTiming.pipe(
@@ -46,6 +47,7 @@ export class ThrottleStorageService
         clearTimeout(storedTiming);
       });
     }
+    this._storedTiming.next({});
   }
 
   onApplicationShutdown(signal?: string): any {
