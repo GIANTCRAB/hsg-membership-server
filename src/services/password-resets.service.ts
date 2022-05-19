@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Connection } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
-import { from, Observable } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { PasswordResetEntity } from '../entities/password-reset.entity';
 import crypto from 'crypto';
 import moment from 'moment';
@@ -17,18 +17,24 @@ export class PasswordResetsService {
   ) {}
 
   public resetUserPassword(user: UserEntity): Observable<PasswordResetEntity> {
-    const verificationCode = Buffer.from(
+    const passwordResetCode = Buffer.from(
       crypto.randomBytes(64).toString('hex'),
     ).toString('base64');
 
     const passwordResetEntity: PasswordResetEntity = new PasswordResetEntity({
       email: user.email,
       user: user,
-      code: verificationCode,
+      code: passwordResetCode,
       expires_at: moment().utc().add(10, 'minutes').toDate(),
     });
 
-    return from(this.connection.manager.save(passwordResetEntity));
+    return from(this.connection.manager.save(passwordResetEntity)).pipe(
+      switchMap((passwordResetEntity) => {
+        return this.sendPasswordResetEmail(passwordResetEntity).pipe(
+          map(() => passwordResetEntity),
+        );
+      }),
+    );
   }
 
   public sendPasswordResetEmail(passwordResetEntity: PasswordResetEntity) {

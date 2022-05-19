@@ -31,6 +31,7 @@ import { CsrfController } from './controllers/csrf/csrf.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { PasswordResetsService } from './services/password-resets.service';
+import { PasswordResetsController } from './controllers/password-resets/password-resets.controller';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { PasswordResetsService } from './services/password-resets.service';
   controllers: [
     RegistrationController,
     LoginController,
+    PasswordResetsController,
     CsrfController,
     SpaceEventsController,
     UserEmailVerificationsController,
@@ -88,6 +90,10 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ThrottleApiRequestMiddleware)
-      .forRoutes(LoginController, RegistrationController);
+      .forRoutes(
+        LoginController,
+        RegistrationController,
+        PasswordResetsController,
+      );
   }
 }

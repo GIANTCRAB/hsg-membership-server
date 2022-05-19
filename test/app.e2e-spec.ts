@@ -264,6 +264,53 @@ describe('Authentication Flow (e2e)', () => {
   });
 });
 
+describe('Password Reset Flow (e2e)', () => {
+  const validUserData = {
+    email: 'test@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+  const invalidUserData = {
+    email: randomStringGenerator() + '@example.org',
+    first_name: 'test',
+    last_name: 'surname',
+    password: 'password123',
+  };
+
+  let validUser: UserEntity;
+
+  beforeAll(async () => {
+    await e2eHelper.resetDatabase();
+    validUser = await e2eHelper.createValidUser(validUserData);
+    return app;
+  });
+
+  it('/api/password-resets (POST) with invalid email', async () => {
+    const userDetails = {
+      email: invalidUserData.email,
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/password-resets')
+      .send(userDetails)
+      .set('Accept', 'application/json');
+
+    expect(response.status).toEqual(HttpStatus.NO_CONTENT);
+  });
+
+  it('/api/password-resets (POST) with valid email', async () => {
+    const userDetails = {
+      email: validUserData.email,
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/password-resets')
+      .send(userDetails)
+      .set('Accept', 'application/json');
+
+    expect(response.status).toEqual(HttpStatus.NO_CONTENT);
+  });
+});
+
 describe('User Profile Flow (e2e)', () => {
   let loginToken: string = '';
   const validUserData = {
