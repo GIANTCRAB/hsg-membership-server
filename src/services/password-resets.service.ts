@@ -131,7 +131,7 @@ export class PasswordResetsService {
   public sendPasswordResetEmail(passwordResetEntity: PasswordResetEntity) {
     const passwordResetUrl =
       this.configService.get<string>('APP_URL') +
-      '/password-resets/' +
+      '/login/' +
       passwordResetEntity.id;
     const emailContent = `Hey there ${passwordResetEntity.user.first_name}, 
         \n\n
