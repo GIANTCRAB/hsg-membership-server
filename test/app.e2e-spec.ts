@@ -319,6 +319,23 @@ describe('Password Reset Flow (e2e)', () => {
     passwordResetResponseDto = response.body;
   });
 
+  it('/api/password-resets/:id (POST) with expired token', async () => {
+    const passwordResetEntity = await e2eHelper.createPasswordResetEntity(
+      validUser,
+    );
+    const passwordResetConfirmation: PasswordResetConfirmationDto = {
+      email: passwordResetEntity.email,
+      code: passwordResetEntity.code,
+      new_password: randomStringGenerator(),
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/password-resets/' + passwordResetEntity.id)
+      .send(passwordResetConfirmation)
+      .set('Accept', 'application/json');
+
+    expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+  });
+
   it('/api/password-resets/:id (POST) with invalid ID', async () => {
     const passwordResetEntity = await e2eHelper.getPasswordResetEntity(
       passwordResetResponseDto.id,

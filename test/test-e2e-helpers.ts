@@ -11,6 +11,7 @@ import { UserEntity } from '../src/entities/user.entity';
 import { LoginTokensService } from '../src/services/login-tokens.service';
 import { ThrottleStorageService } from '../src/services/throttle-storage-service';
 import { PasswordResetsService } from '../src/services/password-resets.service';
+import moment from 'moment/moment';
 
 export class TestE2eHelpers {
   moduleFixture: TestingModule;
@@ -50,6 +51,14 @@ export class TestE2eHelpers {
     );
     return firstValueFrom(
       userEmailVerificationsService.getUserEmailVerificationByEmail(email),
+    );
+  }
+
+  public async createPasswordResetEntity(user: UserEntity) {
+    const passwordResetsService = this.moduleFixture.get(PasswordResetsService);
+    const fiveMinutesAgo = moment().subtract(5, 'minutes').utc().toDate();
+    return firstValueFrom(
+      passwordResetsService.createPasswordResetEntity(user, fiveMinutesAgo),
     );
   }
 

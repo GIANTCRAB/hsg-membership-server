@@ -27,6 +27,21 @@ export class PasswordResetsService {
   public requestUserPasswordReset(
     user: UserEntity,
   ): Observable<PasswordResetEntity> {
+    const tenMinutesFromNow = moment()
+      .utc()
+      .add(this.resetCodeExpiryInMinutes, 'minutes')
+      .toDate();
+
+    return this.createPasswordResetEntity(user, tenMinutesFromNow).pipe(
+      switchMap((passwordResetEntity) => {
+        return this.sendPasswordResetEmail(passwordResetEntity).pipe(
+          map(() => passwordResetEntity),
+        );
+      }),
+    );
+  }
+
+  public createPasswordResetEntity(user: UserEntity, expires_at: Date) {
     const passwordResetCode = Buffer.from(
       crypto.randomBytes(64).toString('hex'),
     ).toString('base64');
@@ -35,19 +50,10 @@ export class PasswordResetsService {
       email: user.email,
       user: user,
       code: passwordResetCode,
-      expires_at: moment()
-        .utc()
-        .add(this.resetCodeExpiryInMinutes, 'minutes')
-        .toDate(),
+      expires_at: expires_at,
     });
 
-    return from(this.connection.manager.save(passwordResetEntity)).pipe(
-      switchMap((passwordResetEntity) => {
-        return this.sendPasswordResetEmail(passwordResetEntity).pipe(
-          map(() => passwordResetEntity),
-        );
-      }),
-    );
+    return from(this.connection.manager.save(passwordResetEntity));
   }
 
   public createPasswordResetResponseDto(
@@ -88,7 +94,7 @@ export class PasswordResetsService {
           user: {
             email: passwordResetConfirmationDto.email,
           },
-          expires_at: MoreThan(new Date().toISOString()),
+          expires_at: MoreThan<Date>(moment().utc().toDate()),
         },
         relations: ['user'],
       }),
