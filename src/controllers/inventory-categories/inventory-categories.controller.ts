@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   UseGuards,
@@ -23,7 +24,7 @@ export class InventoryCategoriesController {
   ) {}
 
   @Get(':id')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   getInventoryCategoryById(@Param() params): Observable<object> {
     return this.inventoryCategoriesService
       .getInventoryCategoryById(params.id)
@@ -36,7 +37,7 @@ export class InventoryCategoriesController {
 
   @ApiBearerAuth()
   @Post(':id')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AdminTokenGuard)
   updateInventoryCategoryById(
     @Param() params,
@@ -58,7 +59,7 @@ export class InventoryCategoriesController {
   }
 
   @Get()
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   getInventoryCategories(@Body() getPageDto: GetPageDto): Observable<object> {
     return this.inventoryCategoriesService.getInventoryCategoriesAndCount(
       getPageDto.page,
@@ -67,7 +68,7 @@ export class InventoryCategoriesController {
 
   @ApiBearerAuth()
   @Post()
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(AdminTokenGuard)
   postInventoryCategory(
     @Body() createInventoryCategoryDto: CreateInventoryCategoryDto,
