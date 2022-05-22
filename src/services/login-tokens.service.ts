@@ -39,7 +39,7 @@ export class LoginTokensService {
         where: {
           value: token,
           is_valid: true,
-          expires_at: MoreThan(new Date().toISOString()),
+          expires_at: MoreThan<Date>(moment().utc().toDate()),
         },
       }),
     ).pipe(map((result) => result !== 0));
@@ -51,7 +51,7 @@ export class LoginTokensService {
         where: {
           value: token,
           is_valid: true,
-          expires_at: MoreThan(new Date().toISOString()),
+          expires_at: MoreThan<Date>(moment().utc().toDate()),
           user: { is_admin: true },
         },
         relations: ['user'],
@@ -65,7 +65,7 @@ export class LoginTokensService {
         where: {
           value: token,
           is_valid: true,
-          expires_at: MoreThan(new Date().toISOString()),
+          expires_at: MoreThan<Date>(moment().utc().toDate()),
           user: { is_member: true },
         },
         relations: ['user'],
@@ -82,7 +82,7 @@ export class LoginTokensService {
         where: {
           value: token,
           is_valid: true,
-          expires_at: MoreThan(new Date().toISOString()),
+          expires_at: MoreThan<Date>(moment().utc().toDate()),
         },
         relations: ['user'],
       }),

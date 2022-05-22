@@ -105,7 +105,7 @@ export class UserEmailVerificationsService {
           code: verifyEmailDto.code,
           is_valid: true,
           is_verified: false,
-          expires_at: MoreThan(new Date().toISOString()),
+          expires_at: MoreThan<Date>(moment().utc().toDate()),
           user: Not(IsNull()),
         },
         relations: ['user'],
