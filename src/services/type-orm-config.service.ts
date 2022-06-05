@@ -9,6 +9,7 @@ import { PhotoEntity } from '../entities/photo.entity';
 import { InventoryItemEntity } from '../entities/inventory-item.entity';
 import { InventoryCategoryEntity } from '../entities/inventory-category.entity';
 import { PasswordResetEntity } from '../entities/password-reset.entity';
+import { join } from 'node:path';
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -32,6 +33,10 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
         InventoryCategoryEntity,
         InventoryItemEntity,
       ],
+      migrations: [join(__dirname, '..', 'migrations/*{.ts,.js}')],
+      cli: {
+        migrationsDir: join(__dirname, '..', 'migrations'),
+      },
       synchronize: true,
       dropSchema: true,
     };
