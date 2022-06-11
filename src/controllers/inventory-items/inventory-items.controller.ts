@@ -87,7 +87,7 @@ export class InventoryItemsController {
 
   @Get()
   @HttpCode(200)
-  getInventoryCategories(@Body() getPageDto: GetPageDto): Observable<object> {
+  getInventoryItems(@Body() getPageDto: GetPageDto): Observable<object> {
     return this.inventoryItemsService.getInventoryItemsAndCount(
       getPageDto.page,
     );
