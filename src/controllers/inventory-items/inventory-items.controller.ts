@@ -4,6 +4,7 @@ import {
   Get,
   Headers,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   UploadedFile,
@@ -31,7 +32,7 @@ export class InventoryItemsController {
 
   @ApiBearerAuth()
   @Post('with-photo')
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(AdminTokenGuard)
   @UseInterceptors(FileInterceptor('photo'))
   postInventoryItemWithPhoto(
@@ -53,7 +54,7 @@ export class InventoryItemsController {
   }
 
   @Get(':id')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   getInventoryById(@Param() params): Observable<object> {
     return this.inventoryItemsService
       .getInventoryItemById(params.id)
@@ -67,7 +68,7 @@ export class InventoryItemsController {
   @ApiBearerAuth()
   @Post(':id')
   @UseGuards(AdminTokenGuard)
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   updateInventoryById(
     @Param() params,
     @Body() updateInventoryItemDto: UpdateInventoryItemDto,
@@ -86,7 +87,7 @@ export class InventoryItemsController {
   }
 
   @Get()
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   getInventoryItems(@Body() getPageDto: GetPageDto): Observable<object> {
     return this.inventoryItemsService.getInventoryItemsAndCount(
       getPageDto.page,
@@ -95,7 +96,7 @@ export class InventoryItemsController {
 
   @ApiBearerAuth()
   @Post()
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(AdminTokenGuard)
   postInventoryItem(
     @Headers('authorization') authorizationToken: string,
