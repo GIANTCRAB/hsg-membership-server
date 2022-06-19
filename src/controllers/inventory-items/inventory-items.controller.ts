@@ -22,6 +22,7 @@ import { GetPageDto } from '../../shared-dto/get-page.dto';
 import { DataMapperHelper } from '../../shared-helpers/data-mapper.helper';
 import { UpdateInventoryItemDto } from './update-inventory-item-dto';
 import { InventoryItemEntity } from '../../entities/inventory-item.entity';
+import { SearchInventoryItemDto } from './search-inventory-item-dto';
 
 @Controller('api/inventory-items')
 export class InventoryItemsController {
@@ -51,6 +52,16 @@ export class InventoryItemsController {
           ),
         ),
       );
+  }
+
+  @Post('search')
+  @HttpCode(HttpStatus.OK)
+  searchInventoryItems(
+    @Body() searchInventoryItemDto: SearchInventoryItemDto,
+  ): Observable<object> {
+    return this.inventoryItemsService.searchInventoryItems(
+      searchInventoryItemDto,
+    );
   }
 
   @Get(':id')

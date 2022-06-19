@@ -11,6 +11,9 @@ import { PhotoUploadsService } from './photo-uploads.service';
 import { ListDataDto } from '../shared-dto/list-data.dto';
 import { DataMapperHelper } from '../shared-helpers/data-mapper.helper';
 import { UpdateInventoryItemDto } from '../controllers/inventory-items/update-inventory-item-dto';
+import { SearchInventoryItemDto } from '../controllers/inventory-items/search-inventory-item-dto';
+import { DbSearchService } from './db-search.service';
+import { SearchInventoryItemFieldsDto } from '../controllers/inventory-items/search-inventory-item-fields-dto';
 
 @Injectable()
 export class InventoryItemsService {
@@ -19,6 +22,7 @@ export class InventoryItemsService {
     private readonly usersService: UsersService,
     private readonly inventoryCategoriesService: InventoryCategoriesService,
     private readonly photoUploadsService: PhotoUploadsService,
+    private readonly dbSearchService: DbSearchService,
   ) {}
 
   public getInventoryItemById(
@@ -269,5 +273,21 @@ export class InventoryItemsService {
         },
       ),
     ).pipe(switchMap(() => this.getInventoryItemById(inventoryItem.id)));
+  }
+
+  public searchInventoryItems(
+    searchInventoryItemDto: SearchInventoryItemDto,
+  ): Observable<ListDataDto<InventoryItemEntity>> {
+    return this.dbSearchService.searchDatabase<
+      InventoryItemEntity,
+      SearchInventoryItemFieldsDto
+    >(InventoryItemEntity, searchInventoryItemDto, [
+      'owned_by',
+      'category',
+      'donated_by',
+      'maintained_by',
+      'created_by',
+      'photo',
+    ]);
   }
 }
